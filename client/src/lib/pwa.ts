@@ -20,3 +20,44 @@ export const isStandalone = (): boolean => {
 
 /** On an iPhone, in the browser rather than the installed app. */
 export const needsHomeScreenInstall = (): boolean => isIos() && !isStandalone();
+
+/**
+ * Forget the data kept for offline use (the service worker's copy of API
+ * answers). Done when signing in, out, or opening another household, so a
+ * phone never shows offline what another account or household loaded.
+ */
+export const clearApiCache = async (): Promise<void> => {
+    try {
+        if (typeof caches === 'undefined') return;
+        const names = await caches.keys();
+        await Promise.all(names.filter((name) => name.includes('-api-')).map((name) => caches.delete(name)));
+    } catch {
+        // Nothing cached, or storage unavailable (private browsing).
+    }
+};
+
+const withTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T | undefined> =>
+    Promise.race([promise, new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), ms))]);
+
+/**
+ * Signing out on a phone: it stops receiving the notifications of every
+ * household this account can open, and its push subscription is dropped, so
+ * the next person who signs in on it starts clean. `forget` asks the server
+ * (still signed in) to delete the subscription.
+ */
+export const releaseDevice = async (forget: ((endpoint: string) => Promise<unknown>) | null): Promise<void> => {
+    try {
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            const reg = await withTimeout(navigator.serviceWorker.getRegistration(), 2000);
+            const sub = await reg?.pushManager.getSubscription();
+            if (sub) {
+                if (forget) await withTimeout(forget(sub.endpoint).catch(() => undefined), 3000);
+                await sub.unsubscribe().catch(() => false);
+            }
+        }
+    } catch {
+        // Offline or no service worker: the subscription is cleaned up the
+        // next time someone enables notifications on this phone.
+    }
+    await clearApiCache();
+};

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { query } from '../db';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { vapidPublicKey } from '../lib/pushService';
+import { REACHABLE_SCOPES_SQL } from '../lib/households';
 
 const router = Router();
 
@@ -30,6 +31,14 @@ router.post('/subscribe', async (req: AuthRequest, res) => {
          ON CONFLICT (user_id, endpoint) DO UPDATE SET keys = EXCLUDED.keys`,
         [req.userId, endpoint, JSON.stringify({ auth: keys.auth, p256dh: keys.p256dh })]
     );
+    // A phone used before by someone else (a family member who signed in on
+    // it, then out) must not keep receiving that person's other households:
+    // this device now only gets the households this account can open.
+    await query(
+        `DELETE FROM push_subscriptions
+         WHERE endpoint = $2 AND user_id NOT IN (${REACHABLE_SCOPES_SQL})`,
+        [req.actualUserId, endpoint]
+    );
 
     return res.json({ success: true });
 });
@@ -38,7 +47,14 @@ router.post('/subscribe', async (req: AuthRequest, res) => {
 router.delete('/subscribe', async (req: AuthRequest, res) => {
     const endpoint = req.query.endpoint as string | undefined;
 
-    if (endpoint) {
+    if (endpoint && req.query.scope === 'all') {
+        // Signing out: this device stops receiving every household the account
+        // can open, not only the one currently open.
+        await query(
+            `DELETE FROM push_subscriptions WHERE endpoint = $2 AND user_id IN (${REACHABLE_SCOPES_SQL})`,
+            [req.actualUserId, endpoint]
+        );
+    } else if (endpoint) {
         await query(
             'DELETE FROM push_subscriptions WHERE user_id = $1 AND endpoint = $2',
             [req.userId, endpoint]

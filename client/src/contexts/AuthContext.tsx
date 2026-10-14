@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { api } from '../lib/api';
 import { applyServerLanguage } from '../lib/language';
 import { applyRegionalPreferences } from '../i18n/format';
+import { clearApiCache, releaseDevice } from '../lib/pwa';
+import { apiBase } from '../lib/serverConfig';
 
 interface User {
     id: string;
@@ -148,6 +150,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const login = async (email: string, password: string) => {
         const response = await api.login(email, password);
         if (response.success && response.user) {
+            void clearApiCache();
             setUser(response.user);
             // Also store in localStorage for persistence
             localStorage.setItem('user', JSON.stringify(response.user));
@@ -160,6 +163,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const register = async (email: string, password: string, name: string, inviteToken?: string, role?: string) => {
         const response = await api.register(email, password, name, inviteToken, role);
         if (response.success && response.user) {
+            void clearApiCache();
             setUser(response.user);
             localStorage.setItem('user', JSON.stringify(response.user));
             applyServerLanguage(response.user.language);
@@ -192,10 +196,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     const logout = () => {
+        const token = api.getToken();
         api.logout();
         setUser(null);
         applyRegionalPreferences(null);
         localStorage.removeItem('user');
+        // The phone forgets this account's notifications and offline data
+        // (foyers fork), with the token of the session that just ended.
+        void releaseDevice(token
+            ? (endpoint) => fetch(
+                `${apiBase()}/api/notifications/subscribe?endpoint=${encodeURIComponent(endpoint)}&scope=all`,
+                { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }
+            )
+            : null);
     };
 
     const updateCurrency = async (currency: string) => {

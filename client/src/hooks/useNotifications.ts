@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 
+/** Session token for which the existing push subscription was registered again. */
+let resyncedFor: string | null = null;
+
 export interface AppNotification {
     id: string;
     user_id: string;
@@ -40,6 +43,15 @@ export function useNotifications() {
             const reg = await navigator.serviceWorker.ready;
             const sub = await reg.pushManager.getSubscription();
             setIsSubscribed(sub !== null);
+            // Once per session, register the existing subscription again: the
+            // server then drops what another account left on this phone
+            // (foyers fork).
+            const token = api.getToken();
+            if (sub && token && resyncedFor !== token) {
+                resyncedFor = token;
+                const { endpoint, keys } = sub.toJSON() as { endpoint: string; keys: { auth: string; p256dh: string } };
+                void api.post('/api/notifications/subscribe', { endpoint, keys }).catch(() => { resyncedFor = null; });
+            }
         } catch {
             setIsSubscribed(false);
         }

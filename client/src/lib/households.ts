@@ -1,6 +1,7 @@
 // Linked accounts ("foyers"): one person, several households, one tap to switch.
 // Server side: server/src/routes/linkedAccounts.ts.
 import { api } from './api';
+import { clearApiCache } from './pwa';
 
 export interface LinkedAccount {
     id: string;
@@ -103,5 +104,7 @@ export const switchToAccount = async (userId: string): Promise<void> => {
 
     api.setToken(res.data.token);
     localStorage.setItem('user', JSON.stringify(res.data.user));
+    // Offline copies belong to the household being left.
+    await clearApiCache();
     window.location.assign(import.meta.env.BASE_URL || '/');
 };

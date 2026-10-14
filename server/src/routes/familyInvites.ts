@@ -175,6 +175,14 @@ router.post('/join', async (req: AuthRequest, res) => {
         return res.status(400).json({ success: false, error: 'Vous êtes déjà propriétaire de cette famille' });
     }
 
+    // A member of a family does not move to another one with a link (a link
+    // forwarded by mistake would otherwise open that family's data to them).
+    // They leave their family first, which their owner sees.
+    const current = await query('SELECT family_owner_id FROM users WHERE id = $1', [req.actualUserId]);
+    if (current.rows[0]?.family_owner_id) {
+        return res.status(400).json({ success: false, error: 'Vous faites déjà partie d\'une famille.' });
+    }
+
     // Same rule as POST /requests: an owner who still has members attached
     // cannot join another family (their members would be orphaned).
     const ownMembers = await query('SELECT 1 FROM users WHERE family_owner_id = $1 LIMIT 1', [req.actualUserId]);
