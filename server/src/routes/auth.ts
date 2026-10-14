@@ -8,6 +8,7 @@ import { normalizeEmail } from '../lib/normalize';
 import { isMailEnabled, sendPasswordResetEmail } from '../lib/mailer';
 import { resolveAppBaseUrl } from '../lib/appUrl';
 import { parseDisabledModules } from './userSettings';
+import { displayEmailSql } from '../lib/households';
 
 const router = Router();
 
@@ -15,7 +16,7 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res) => {
     try {
         // Use actualUserId so members see their own profile, not the owner's
         const result = await query(
-            'SELECT id, email, name, role, currency, language, week_start_day, avatar_url, (family_owner_id IS NULL) AS is_owner FROM users WHERE id = $1',
+            `SELECT id, ${displayEmailSql('users')} AS email, name, role, currency, language, week_start_day, avatar_url, (family_owner_id IS NULL) AS is_owner FROM users WHERE id = $1`,
             [req.actualUserId]
         );
         if (result.rows.length === 0) {
@@ -306,7 +307,7 @@ router.post('/password/reset', passwordResetRateLimiter, async (req, res) => {
 router.post('/refresh', authMiddleware, async (req: AuthRequest, res) => {
     try {
         const result = await query(
-            'SELECT id, email, name, role, currency, language, week_start_day, avatar_url, disabled_modules, family_owner_id FROM users WHERE id = $1',
+            `SELECT id, ${displayEmailSql('users')} AS email, name, role, currency, language, week_start_day, avatar_url, disabled_modules, family_owner_id FROM users WHERE id = $1`,
             [req.actualUserId]
         );
         if (result.rows.length === 0) {

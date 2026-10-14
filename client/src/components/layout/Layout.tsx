@@ -24,12 +24,19 @@ import {
     Plug,
     PiggyBank,
     MessageSquare,
+    Receipt,
+    Camera,
+    Zap,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/Button';
 import { NotificationBell } from '../ui/NotificationBell';
 import { DemoBanner } from '../app/DemoBanner';
 import { MagicInputButton } from '../app/MagicInput';
+import { HouseholdSwitcher } from '../app/HouseholdSwitcher';
+import { IosInstallBanner } from '../app/IosInstallBanner';
+import { APP_NAME } from '../../lib/pwa';
+import { useLinkedAccounts } from '../../hooks/useLinkedAccounts';
 
 interface LayoutProps {
     children: ReactNode;
@@ -48,6 +55,7 @@ const navigation: { labelKey: string; href: string; icon: typeof Home; module?: 
     { labelKey: 'items.recipes', href: '/recipes', icon: ChefHat, module: 'recipes' },
     { labelKey: 'items.meals', href: '/meal-planning', icon: UtensilsCrossed, module: 'meals' },
     { labelKey: 'items.budget', href: '/budget', icon: Wallet, module: 'budget' },
+    { labelKey: 'items.purchases', href: '/purchases', icon: Receipt },
     { labelKey: 'items.family', href: '/family', icon: Users },
     { labelKey: 'items.integrations', href: '/integrations', icon: Plug, module: 'integrations' },
     { labelKey: 'items.settings', href: '/settings', icon: Settings },
@@ -62,6 +70,8 @@ const mobileTabs: { labelKey: string; href: string; icon: typeof Home; module?: 
 ];
 
 const quickActions: { labelKey: string; href: string; icon: typeof Home; module?: string }[] = [
+    { labelKey: 'quickActions.scanReceipt', href: '/purchases?add=scan', icon: Camera },
+    { labelKey: 'quickActions.addElectricity', href: '/purchases?add=electricity', icon: Zap },
     { labelKey: 'quickActions.addShopping', href: '/shopping', icon: ShoppingCart },
     { labelKey: 'quickActions.addTask', href: '/tasks', icon: CheckSquare },
     { labelKey: 'quickActions.addPost', href: '/posts', icon: MessageSquare },
@@ -85,6 +95,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const { t } = useTranslation('nav');
     const { user, logout, isModuleEnabled } = useAuth();
     const { setTheme, actualTheme } = useTheme();
+    const multiHousehold = useLinkedAccounts().accounts.length > 1;
 
     // Hide entries whose optional module the family has disabled.
     const visibleNavigation = navigation.filter((item) => !item.module || isModuleEnabled(item.module));
@@ -135,8 +146,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <div className="flex h-full flex-col">
                     <div className="flex h-20 items-center justify-between border-b border-border px-6">
                         <Link to="/" className="flex items-center gap-3" onClick={closeMenus}>
-                            <img src={`${import.meta.env.BASE_URL}OpenFamily.png`} alt="OpenFamily" className="h-9 w-9 object-contain" />
-                            <span className="text-lg font-semibold tracking-tight">OpenFamily</span>
+                            <img src={`${import.meta.env.BASE_URL}OpenFamily.png`} alt={APP_NAME} className="h-9 w-9 object-contain" />
+                            <span className="text-lg font-semibold tracking-tight">{APP_NAME}</span>
                         </Link>
                         <button
                             type="button"
@@ -225,8 +236,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="lg:pl-72">
                 <DemoBanner />
                 <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-md">
-                    <div className="container flex h-16 max-w-[1200px] items-center justify-between px-4 lg:px-6">
-                        <div className="flex items-center gap-3">
+                    <div className="container flex h-16 max-w-[1200px] items-center justify-between gap-2 px-4 lg:px-6">
+                        <div className="flex min-w-0 items-center gap-3">
                             <button
                                 type="button"
                                 onClick={() => {
@@ -238,12 +249,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                             >
                                 <Menu className="h-5 w-5" />
                             </button>
-                            <h1 className="text-caption font-semibold text-foreground">
+                            {/* With several households, a phone shows which one is open
+                                instead of the page name (the tab bar already shows it). */}
+                            <h1 className={cn('truncate text-caption font-semibold text-foreground', multiHousehold && 'hidden sm:block')}>
                                 {currentPage ? t(currentPage.labelKey) : t('pageTitleFallback')}
                             </h1>
+                            <HouseholdSwitcher className="min-w-0" />
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex shrink-0 items-center gap-2">
                             <MagicInputButton />
                             <NotificationBell />
                             <div className="hidden items-center gap-2 lg:flex">
@@ -280,6 +294,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                             {t('offline')}
                         </div>
                     )}
+                    <IosInstallBanner />
                     {children}
                 </main>
             </div>

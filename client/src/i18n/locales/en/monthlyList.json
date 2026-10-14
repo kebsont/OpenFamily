@@ -1,0 +1,71 @@
+{
+  "back": "Shopping list",
+  "title": "Monthly list",
+  "subtitle": "Tick what to buy this month, then add it to the shopping list.",
+  "entry": {
+    "title": "Monthly list",
+    "text": "Prepare the month's shopping"
+  },
+  "places": {
+    "store": "Supermarket",
+    "market": "Market"
+  },
+  "moveTo": "Move to {{place}}",
+  "selectedCount_one": "{{count}} ticked",
+  "selectedCount_other": "{{count}} ticked",
+  "summary_one": "{{count}} item ticked",
+  "summary_other": "{{count}} items ticked",
+  "summaryMarket_one": "{{count}} at the market",
+  "summaryMarket_other": "{{count}} at the market",
+  "apply_one": "Add {{count}} item to the list",
+  "apply_other": "Add {{count}} items to the list",
+  "result": {
+    "added_one": "{{count}} item added to the shopping list.",
+    "added_other": "{{count}} items added to the shopping list.",
+    "market_one": "{{count}} of them for the market.",
+    "market_other": "{{count}} of them for the market.",
+    "skipped_one": "{{count}} was already there.",
+    "skipped_other": "{{count}} were already there.",
+    "open": "Open the list"
+  },
+  "empty": {
+    "title": "No history yet",
+    "text": "Paste your lists from past months below, or scan your receipts in Purchases: suggestions will appear here. You can also add items by hand."
+  },
+  "addOther": "Add another item",
+  "addPlaceholder": "E.g. Pasta (penne) 2",
+  "where": "Where to buy it?",
+  "remove": "Remove {{name}}",
+  "import": {
+    "title": "Older lists",
+    "monthsCount_one": "{{count}} month",
+    "monthsCount_other": "{{count}} months",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "confirmDelete": "Delete",
+    "cancel": "Cancel",
+    "delete": "Delete the {{month}} list",
+    "hint": "Paste your lists from past months (Notes, WhatsApp…), several at once if you like: a title such as \"Shopping for July\" separates the months.",
+    "textLabel": "Lists to import",
+    "placeholder": "Shopping for September\n- Oil\n- Washing powder\n- Potatoes",
+    "monthLabel": "Month of the list, if the text doesn't say",
+    "submit": "Import",
+    "done": "Imported: {{months}}.",
+    "monthCount": "{{month}} ({{count}})",
+    "errors": {
+      "missing_month": "Choose the month of this list.",
+      "no_items": "No items found in this text.",
+      "too_long": "Text too long: import a few months at a time."
+    }
+  },
+  "errors": {
+    "load": "Could not load the suggestions.",
+    "apply": "Could not add to the list. Try again.",
+    "generic": "Something went wrong. Try again."
+  },
+  "others": "Other products",
+  "allDone": {
+    "title": "List ready",
+    "text": "Everything is already on the shopping list."
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "banner": {
+    "title": "Installer {{app}} sur cet iPhone",
+    "steps": "Touchez Partager en bas de Safari, puis « Sur l'écran d'accueil ». L'appli s'ouvrira en plein écran et pourra vous envoyer des notifications.",
+    "dismiss": "Plus tard",
+    "close": "Fermer"
+  },
+  "pushHint": "Sur iPhone, les notifications marchent depuis l'appli installée : Partager → « Sur l'écran d'accueil », puis ouvrez-la depuis son icône."
+}

@@ -100,6 +100,11 @@ jobs:
       - name: Run smoke API
         run: npm run smoke:api
 
+      - name: Run households smoke (foyers fork)
+        # Several households, one owner: isolation, linking, switching,
+        # and a removed member losing access at once.
+        run: bash scripts/smoke-foyers.sh
+
       - name: Dump logs on failure
         if: failure()
         run: docker compose logs --tail=200

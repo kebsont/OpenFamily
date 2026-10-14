@@ -12,7 +12,8 @@
     "family": "Famille",
     "integrations": "Intégrations",
     "settings": "Paramètres",
-    "posts": "Publications"
+    "posts": "Publications",
+    "purchases": "Achats"
   },
   "mobile": {
     "home": "Accueil",
@@ -31,7 +32,9 @@
     "addMeal": "Ajouter un repas",
     "addExpense": "Ajouter une dépense",
     "addMember": "Ajouter un membre",
-    "addPost": "Nouvelle publication"
+    "addPost": "Nouvelle publication",
+    "scanReceipt": "Scanner un ticket",
+    "addElectricity": "Recharge Woyofal"
   },
   "user": {
     "profile": "Profil",

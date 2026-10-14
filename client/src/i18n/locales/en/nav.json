@@ -12,7 +12,8 @@
     "family": "Family",
     "integrations": "Integrations",
     "settings": "Settings",
-    "posts": "Posts"
+    "posts": "Posts",
+    "purchases": "Purchases"
   },
   "mobile": {
     "home": "Home",
@@ -31,7 +32,9 @@
     "addMeal": "Add a meal",
     "addExpense": "Add an expense",
     "addMember": "Add a member",
-    "addPost": "New post"
+    "addPost": "New post",
+    "scanReceipt": "Scan a receipt",
+    "addElectricity": "Electricity top-up"
   },
   "user": {
     "profile": "Profile",

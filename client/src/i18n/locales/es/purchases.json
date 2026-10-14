@@ -1,0 +1,143 @@
+{
+  "title": "Compras",
+  "subtitle": "Tickets de caja, pequeños gastos y recargas de electricidad, comparados mes a mes.",
+  "tabs": {
+    "add": "Añadir",
+    "history": "Historial",
+    "analysis": "Análisis",
+    "combined": "Hogares"
+  },
+  "month": {
+    "previous": "Mes anterior",
+    "next": "Mes siguiente"
+  },
+  "delta": {
+    "new": "nuevo",
+    "same": "estable"
+  },
+  "lastMonth": "Mes pasado: {{amount}}",
+  "fields": {
+    "store": "Tienda",
+    "date": "Fecha",
+    "total": "Total pagado",
+    "budgetCategory": "Categoría del presupuesto",
+    "itemName": "Artículo",
+    "quantity": "Cant.",
+    "lineTotal": "Importe",
+    "aisle": "Sección",
+    "amount": "Importe",
+    "kwh": "kWh recibidos",
+    "where": "¿Dónde?",
+    "otherStore": "Nombre de la tienda",
+    "what": "¿Qué?",
+    "whatPlaceholder": "p. ej. pan, azúcar, bombilla…"
+  },
+  "editor": {
+    "title": "Revisar el ticket",
+    "checkHint": "Revisa las líneas: la lectura automática puede equivocarse con un ticket arrugado o desvaído.",
+    "totalsMatch": "La suma de las líneas ({{amount}}) coincide con el total.",
+    "totalsDiffer": "La suma de las líneas ({{lines}}) no coincide con el total ({{total}}): puede que una línea esté mal leída o falte.",
+    "lines_one": "{{count}} artículo",
+    "lines_other": "{{count}} artículos",
+    "removeLine": "Quitar la línea",
+    "addLine": "Añadir una línea"
+  },
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar"
+  },
+  "add": {
+    "scanTitle": "Escanear un ticket",
+    "scanHint": "Fotografía el ticket de caja (2 o 3 fotos si es largo).",
+    "electricityTitle": "Recarga de electricidad",
+    "electricityHint": "Importe y kWh recibidos, para seguir el consumo.",
+    "quickTitle": "Pequeño gasto",
+    "quickHint": "Tienda de barrio, mercado, ferretería…",
+    "reading": "Leyendo el ticket…",
+    "readingHint": "Un ticket largo puede tardar hasta un minuto.",
+    "kwhHint": "Los kWh figuran en el recibo o en el SMS de la recarga.",
+    "savedReceipt": "Ticket guardado y añadido al presupuesto.",
+    "savedElectricity": "Recarga guardada.",
+    "savedQuick": "Gasto guardado."
+  },
+  "stores": {
+    "Boutique": "Tienda de barrio",
+    "Marché": "Mercado",
+    "Quincaillerie": "Ferretería",
+    "Auchan": "Auchan",
+    "Woyofal": "Woyofal",
+    "other": "Otra"
+  },
+  "kinds": {
+    "electricity": "Electricidad",
+    "quick": "Pequeño gasto"
+  },
+  "history": {
+    "empty": "Ninguna compra este mes.",
+    "deleteConfirm": "¿Eliminar esta compra ({{store}}, {{amount}})? También se quitará del presupuesto.",
+    "kwh": "{{kwh}} kWh",
+    "lines_one": "{{count}} artículo",
+    "lines_other": "{{count}} artículos",
+    "by": "añadida por {{name}}"
+  },
+  "analysis": {
+    "empty": "Todavía no hay nada que comparar: las cifras aparecerán con las primeras compras.",
+    "total": "Total del mes",
+    "receipts": "Compras (tickets)",
+    "quick": "Pequeños gastos",
+    "electricity": "Electricidad",
+    "kwhShort": "{{kwh}} kWh",
+    "trend": "Últimos seis meses",
+    "byStore": "Por tienda",
+    "byAisle": "Por sección (tickets)",
+    "products": "Productos más comprados",
+    "qty": "Cantidad: {{qty}}",
+    "qtyBefore": "el mes pasado: {{qty}}",
+    "priceUp": "Precio medio +{{pct}} % ({{price}})",
+    "priceDown": "Precio medio −{{pct}} % ({{price}})",
+    "electricityTitle": "Electricidad (Woyofal)",
+    "noElectricity": "Ninguna recarga este mes.",
+    "spent": "Gastado",
+    "energy": "Energía",
+    "perKwh": "Precio del kWh",
+    "electricityCompare_one": "{{count}} recarga este mes. El mes pasado: {{before}} por {{kwh}} kWh.",
+    "electricityCompare_other": "{{count}} recargas este mes. El mes pasado: {{before}} por {{kwh}} kWh.",
+    "smallShops": "Pequeñas compras",
+    "noSmallShops": "Ningún pequeño gasto este mes.",
+    "groupHint": "Lo que se compra a menudo en la tienda de barrio puede ir en la compra del mes.",
+    "unnamed": "Sin detalle",
+    "times_one": "{{count}} vez",
+    "times_other": "{{count}} veces",
+    "added": "Añadido",
+    "addToList": "A la lista",
+    "none": "Ninguna compra en estos dos meses.",
+    "trendHint": "Media de los meses con datos: {{amount}}"
+  },
+  "combined": {
+    "familyOf": "Familia de {{name}}",
+    "allHouseholds": "Todos los hogares, este mes",
+    "electricity": "Electricidad: {{kwh}} kWh en total",
+    "open": "Abierto",
+    "kwhLine": "{{kwh}} kWh, a {{price}} el kWh"
+  },
+  "errors": {
+    "AI_NOT_CONFIGURED": "La lectura de tickets usa el asistente de IA: un padre debe configurarlo antes en Ajustes → Asistente de IA.",
+    "AI_DISABLED": "El asistente de IA está desactivado en Ajustes.",
+    "AI_UNAUTHORIZED": "La clave del asistente de IA ha sido rechazada. Revísala en Ajustes.",
+    "AI_MODEL_NOT_FOUND": "No se encuentra el modelo del asistente de IA. Elige un modelo que lea imágenes.",
+    "AI_UNREACHABLE": "El asistente de IA no responde. Inténtalo de nuevo en un momento.",
+    "AI_INVALID_RESPONSE": "No se ha podido leer el ticket. Vuelve a hacer la foto, plana y con más luz.",
+    "AI_PROVIDER_ERROR": "El proveedor de IA ha devuelto un error. Comprueba que el modelo elegido lee imágenes.",
+    "invalid_images": "Foto no compatible (3 fotos como máximo, en JPEG o PNG).",
+    "invalid_kind": "Tipo de compra desconocido.",
+    "missing_store": "Indica la tienda.",
+    "invalid_date": "Fecha no válida.",
+    "invalid_total": "Importe no válido.",
+    "invalid_kwh": "Número de kWh no válido.",
+    "invalid_category": "Elige una categoría del presupuesto.",
+    "photo": "No se ha podido abrir esta foto.",
+    "generic": "Se ha producido un error. Inténtalo de nuevo."
+  }
+}

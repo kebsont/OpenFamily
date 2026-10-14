@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useWebSocketUpdates } from '../hooks/useWebSocketUpdates';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { formatCurrency } from '../lib/utils';
 import { intlLocale } from '../i18n/format';
-import { Plus, Trash2, Check, ShoppingBag, Save, ListChecks, Store, ChevronLeft, Minus } from 'lucide-react';
+import { Plus, Trash2, Check, ShoppingBag, Save, ListChecks, Store, ChevronLeft, ChevronRight, Minus, CalendarCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -52,7 +53,7 @@ const parseOptionalPositiveNumber = (value: string): number | undefined => {
 };
 
 const ShoppingList: React.FC = () => {
-    const { t } = useTranslation(['shopping', 'common']);
+    const { t } = useTranslation(['shopping', 'common', 'monthlyList']);
     const categoryLabel = (value: string) => t(`shopping:categories.${value}`, { defaultValue: value });
     const { user } = useAuth();
     const currency = user?.currency || 'EUR';
@@ -522,6 +523,21 @@ const ShoppingList: React.FC = () => {
                     </Button>
                 )}
             </div>
+
+            {/* Monthly list (foyers fork): the month's big run, from the previous months. */}
+            <Link
+                to="/shopping/month"
+                className="flex items-center gap-3 rounded-card border border-border bg-card p-4 shadow-surface transition-colors hover:border-primary"
+            >
+                <span className="rounded-card bg-primary-soft p-2 text-primary">
+                    <CalendarCheck className="h-5 w-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                    <span className="block text-body font-semibold text-foreground">{t('monthlyList:entry.title')}</span>
+                    <span className="block text-caption text-muted-foreground">{t('monthlyList:entry.text')}</span>
+                </span>
+                <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+            </Link>
 
             <Card>
                 <CardHeader>

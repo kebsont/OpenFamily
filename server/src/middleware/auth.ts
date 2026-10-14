@@ -12,22 +12,39 @@ export interface AuthRequest extends Request {
     isOwner?: boolean;
 }
 
-export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-        const authHeader = req.headers.authorization;
-        const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+export const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
 
-        if (!token) {
-            return res.status(401).json({ success: false, error: 'No token provided' });
+    if (!token) {
+        return res.status(401).json({ success: false, error: 'No token provided' });
+    }
+
+    let decoded: { userId: string; ownerId?: string };
+    try {
+        decoded = jwt.verify(token, getJwtSecret()) as { userId: string; ownerId?: string };
+    } catch {
+        return res.status(401).json({ success: false, error: 'Invalid token' });
+    }
+
+    try {
+        // The family scope comes from the database, never from the token alone.
+        // A token lives 7 days: trusting its ownerId let a member removed from a
+        // family keep reading that family's data until it expired, and left a
+        // freshly transferred family pointing at the old, now empty, scope.
+        const result = await query('SELECT family_owner_id FROM users WHERE id = $1', [decoded.userId]);
+        const row = result.rows[0] as { family_owner_id: string | null } | undefined;
+        if (!row) {
+            return res.status(401).json({ success: false, error: 'Invalid token' });
         }
 
-        const decoded = jwt.verify(token, getJwtSecret()) as { userId: string; ownerId?: string };
+        const ownerId = row.family_owner_id ?? decoded.userId;
         req.actualUserId = decoded.userId;
-        req.userId = decoded.ownerId ?? decoded.userId;
-        req.isOwner = !decoded.ownerId || decoded.ownerId === decoded.userId;
-        next();
-    } catch (error) {
-        return res.status(401).json({ success: false, error: 'Invalid token' });
+        req.userId = ownerId;
+        req.isOwner = ownerId === decoded.userId;
+        return next();
+    } catch {
+        return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 };
 

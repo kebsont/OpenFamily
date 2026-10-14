@@ -14,11 +14,20 @@ export default defineConfig(({ mode }) => {
     const isDemo = process.env.VITE_DEMO === 'true';
     const isNativeBuild = mode === 'native';
     const usePwa = !isDemo && !isNativeBuild;
+    // Name under the home-screen icon and in the tab (APP_NAME in the deploy .env).
+    const appName = (process.env.VITE_APP_NAME || '').trim() || 'OpenFamily';
+    const escapeHtml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
     return {
         base: isDemo ? (process.env.VITE_DEMO_BASE || '/OpenFamily/demo/') : '/',
         plugins: [
             react(),
+            {
+                name: 'app-name',
+                transformIndexHtml: (html: string) => html
+                    .replace(/__APP_NAME__/g, escapeHtml(appName))
+                    .replace(/__APP_TITLE__/g, escapeHtml(appName === 'OpenFamily' ? 'OpenFamily - Gestion familiale' : appName)),
+            },
             ...(usePwa ? [VitePWA({
                 registerType: 'autoUpdate',
                 strategies: 'injectManifest',
@@ -26,8 +35,8 @@ export default defineConfig(({ mode }) => {
                 filename: 'sw.js',
                 includeAssets: ['favicon-32x32.png', 'favicon-16x16.png', 'apple-touch-icon.png', 'OpenFamily.png'],
                 manifest: {
-                    name: 'OpenFamily',
-                    short_name: 'OpenFamily',
+                    name: appName,
+                    short_name: appName,
                     description: 'Application de gestion familiale',
                     theme_color: '#DC4A60',
                     background_color: '#F7F2E9',

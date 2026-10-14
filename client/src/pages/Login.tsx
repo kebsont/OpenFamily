@@ -8,6 +8,7 @@ import { Input } from '../components/ui/Input';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
 import { Users, Sun, Moon, ArrowLeft } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { APP_NAME } from '../lib/pwa';
 
 
 const Login: React.FC = () => {
@@ -117,7 +118,7 @@ const Login: React.FC = () => {
                         <img src={`${import.meta.env.BASE_URL}OpenFamily.png`} alt="OpenFamily" className="w-16 h-16 rounded-xl object-contain mx-auto" />
                     </div>
                     <CardTitle className="font-serif text-display mb-2">
-                        Open<span className="text-primary">Family</span>
+                        {APP_NAME === 'OpenFamily' ? <>Open<span className="text-primary">Family</span></> : APP_NAME}
                     </CardTitle>
                     <p className="text-muted-foreground text-caption">
                         {t('auth:tagline')}

@@ -57,7 +57,7 @@ const toAiSettings = (row: AiSettingsRow): AiSettings => ({
     model: row.model,
 });
 
-const handleAiError = (res: Response, error: unknown, context: string) => {
+export const handleAiError = (res: Response, error: unknown, context: string) => {
     if (error instanceof AiError) {
         // The code is machine-readable (the client maps it to a localized message);
         // `message` carries the provider detail for power users.
@@ -233,7 +233,7 @@ router.post('/test', requireParent, async (req: AuthRequest, res) => {
 });
 
 /** Loads + checks configured & enabled settings, or sends the 4xx response. */
-const requireConfiguredAi = async (req: AuthRequest, res: Response): Promise<AiSettings | null> => {
+export const requireConfiguredAi = async (req: AuthRequest, res: Response): Promise<AiSettings | null> => {
     const row = await loadSettingsRow(req.userId!);
     if (!row || !row.model) {
         res.status(400).json({ success: false, error: 'AI_NOT_CONFIGURED' });

@@ -43,9 +43,21 @@ export async function openaiComplete(
             model: settings.model,
             messages: [
                 { role: 'system', content: request.system },
-                { role: 'user', content: request.user },
+                {
+                    role: 'user',
+                    content: request.images?.length
+                        ? [
+                              { type: 'text', text: request.user },
+                              ...request.images.map((image) => ({
+                                  type: 'image_url',
+                                  image_url: { url: `data:${image.mediaType};base64,${image.data}` },
+                              })),
+                          ]
+                        : request.user,
+                },
             ],
             response_format: { type: 'json_object' },
+            ...(request.maxTokens ? { max_tokens: request.maxTokens } : {}),
         }),
     });
 

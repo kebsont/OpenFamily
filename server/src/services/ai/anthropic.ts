@@ -24,9 +24,20 @@ export async function anthropicComplete(
         message = await client.messages.create(
             {
                 model: settings.model,
-                max_tokens: 2048,
+                max_tokens: request.maxTokens ?? 2048,
                 system: request.system,
-                messages: [{ role: 'user', content: request.user }],
+                messages: [{
+                    role: 'user',
+                    content: request.images?.length
+                        ? [
+                              ...request.images.map((image) => ({
+                                  type: 'image' as const,
+                                  source: { type: 'base64' as const, media_type: image.mediaType, data: image.data },
+                              })),
+                              { type: 'text' as const, text: request.user },
+                          ]
+                        : request.user,
+                }],
                 output_config: {
                     format: { type: 'json_schema', schema: request.jsonSchema },
                 },

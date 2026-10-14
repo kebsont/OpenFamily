@@ -8,6 +8,7 @@ import { createLocalizedNotification } from '../lib/notifications';
 import { normalizeEmail } from '../lib/normalize';
 import { isMailEnabled, sendFamilyInviteEmail } from '../lib/mailer';
 import { resolveAppBaseUrl } from '../lib/appUrl';
+import { displayEmailSql } from '../lib/households';
 
 const router = Router();
 
@@ -61,7 +62,7 @@ router.use(authMiddleware);
 // GET /members - list all user accounts in this family
 router.get('/members', async (req: AuthRequest, res) => {
     const { rows } = await query(
-        `SELECT id, name, email, role, (family_owner_id IS NULL) AS is_owner, created_at
+        `SELECT id, name, ${displayEmailSql('users')} AS email, role, (family_owner_id IS NULL) AS is_owner, created_at
          FROM users
          WHERE id = $1
             OR family_owner_id = $1

@@ -26,6 +26,9 @@ import aiRoutes from './routes/ai';
 import categoriesRoutes from './routes/categories';
 import kakeiboRoutes from './routes/kakeibo';
 import postsRoutes from './routes/posts';
+import linkedAccountsRoutes from './routes/linkedAccounts';
+import purchasesRoutes from './routes/purchases';
+import monthlyListRoutes from './routes/monthlyList';
 import { loadEnv } from './config/loadEnv';
 import logger from './lib/logger';
 
@@ -116,8 +119,10 @@ app.use('/api/posts', express.json({ limit: '3mb' }));
 // here: this runs before authentication, so any anonymous request could make
 // the server buffer and parse a body of that size.
 const defaultJsonParser = express.json({ limit: '1mb' });
+// Routes that parse their own (larger) body after authentication.
+const SELF_PARSED_PATHS = new Set(['/api/data/import', '/api/purchases/scan']);
 app.use((req, res, next) => (
-    req.path.replace(/\/+$/, '').toLowerCase() === '/api/data/import'
+    SELF_PARSED_PATHS.has(req.path.replace(/\/+$/, '').toLowerCase())
         ? next()
         : defaultJsonParser(req, res, next)
 ));
@@ -178,6 +183,7 @@ app.use('/api/auth/register', authRateLimiter);
 app.use('/api/ai', outboundRateLimiter);
 app.use('/api/recipes/import-url', outboundRateLimiter);
 app.use('/api/integrations', outboundRateLimiter);
+app.use('/api/purchases/scan', outboundRateLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', userSettingsRoutes);
 app.use('/api/shopping', shoppingRoutes);
@@ -201,6 +207,9 @@ app.use('/api/notes', notesRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/kakeibo', kakeiboRoutes);
+app.use('/api/linked-accounts', linkedAccountsRoutes);
+app.use('/api/purchases', purchasesRoutes);
+app.use('/api/monthly-list', monthlyListRoutes);
 
 app.use('/api/posts', postsRoutes);
 // Static client (native Windows install): serve the built SPA from the same origin

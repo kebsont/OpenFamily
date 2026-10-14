@@ -21,11 +21,21 @@ export interface AiSettings {
     model: string;
 }
 
+/** A picture sent along with the prompt (e.g. a till receipt), base64 without the data: prefix. */
+export interface AiImage {
+    mediaType: 'image/jpeg' | 'image/png' | 'image/webp';
+    data: string;
+}
+
 export interface AiCompletionRequest {
     system: string;
     user: string;
     /** JSON schema of the expected response object (additionalProperties:false everywhere). */
     jsonSchema: Record<string, unknown>;
+    /** Pictures to read with the prompt. Needs a vision-capable model. */
+    images?: AiImage[];
+    /** Upper bound on the answer's length, for long outputs (default per provider). */
+    maxTokens?: number;
 }
 
 export type AiErrorCode =

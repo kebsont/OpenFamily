@@ -1,0 +1,143 @@
+{
+  "title": "Purchases",
+  "subtitle": "Till receipts, small expenses and electricity top-ups, compared month to month.",
+  "tabs": {
+    "add": "Add",
+    "history": "History",
+    "analysis": "Analysis",
+    "combined": "Households"
+  },
+  "month": {
+    "previous": "Previous month",
+    "next": "Next month"
+  },
+  "delta": {
+    "new": "new",
+    "same": "steady"
+  },
+  "lastMonth": "Last month: {{amount}}",
+  "fields": {
+    "store": "Store",
+    "date": "Date",
+    "total": "Total paid",
+    "budgetCategory": "Budget category",
+    "itemName": "Item",
+    "quantity": "Qty",
+    "lineTotal": "Amount",
+    "aisle": "Aisle",
+    "amount": "Amount",
+    "kwh": "kWh received",
+    "where": "Where?",
+    "otherStore": "Store name",
+    "what": "What?",
+    "whatPlaceholder": "e.g. bread, sugar, light bulb…"
+  },
+  "editor": {
+    "title": "Check the receipt",
+    "checkHint": "Read the lines again: automatic reading can be wrong on a crumpled or faded receipt.",
+    "totalsMatch": "The lines add up to the total ({{amount}}).",
+    "totalsDiffer": "The lines add up to {{lines}}, not to the total ({{total}}): a line may be misread or missing.",
+    "lines_one": "{{count}} item",
+    "lines_other": "{{count}} items",
+    "removeLine": "Remove line",
+    "addLine": "Add a line"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "add": {
+    "scanTitle": "Scan a receipt",
+    "scanHint": "Take a photo of the till receipt (2 or 3 photos if it is long).",
+    "electricityTitle": "Electricity top-up",
+    "electricityHint": "Amount and kWh received, to follow consumption.",
+    "quickTitle": "Small expense",
+    "quickHint": "Corner shop, market, hardware store…",
+    "reading": "Reading the receipt…",
+    "readingHint": "A long receipt can take up to a minute.",
+    "kwhHint": "The kWh are printed on the top-up receipt or text message.",
+    "savedReceipt": "Receipt saved and added to the budget.",
+    "savedElectricity": "Top-up saved.",
+    "savedQuick": "Expense saved."
+  },
+  "stores": {
+    "Boutique": "Corner shop",
+    "Marché": "Market",
+    "Quincaillerie": "Hardware store",
+    "Auchan": "Auchan",
+    "Woyofal": "Woyofal",
+    "other": "Other"
+  },
+  "kinds": {
+    "electricity": "Electricity",
+    "quick": "Small expense"
+  },
+  "history": {
+    "empty": "No purchases this month.",
+    "deleteConfirm": "Delete this purchase ({{store}}, {{amount}})? It is removed from the budget too.",
+    "kwh": "{{kwh}} kWh",
+    "lines_one": "{{count}} item",
+    "lines_other": "{{count}} items",
+    "by": "added by {{name}}"
+  },
+  "analysis": {
+    "empty": "Nothing to compare yet: figures appear with the first purchases.",
+    "total": "Month total",
+    "receipts": "Groceries (receipts)",
+    "quick": "Small expenses",
+    "electricity": "Electricity",
+    "kwhShort": "{{kwh}} kWh",
+    "trend": "Last six months",
+    "byStore": "By store",
+    "byAisle": "By aisle (receipts)",
+    "products": "Most bought products",
+    "qty": "Quantity: {{qty}}",
+    "qtyBefore": "last month: {{qty}}",
+    "priceUp": "Average price up {{pct}}% ({{price}})",
+    "priceDown": "Average price down {{pct}}% ({{price}})",
+    "electricityTitle": "Electricity (Woyofal)",
+    "noElectricity": "No top-up this month.",
+    "spent": "Spent",
+    "energy": "Energy",
+    "perKwh": "Price per kWh",
+    "electricityCompare_one": "{{count}} top-up this month. Last month: {{before}} for {{kwh}} kWh.",
+    "electricityCompare_other": "{{count}} top-ups this month. Last month: {{before}} for {{kwh}} kWh.",
+    "smallShops": "Small purchases",
+    "noSmallShops": "No small expense this month.",
+    "groupHint": "What is often bought at the corner shop can go into the monthly shopping.",
+    "unnamed": "No details",
+    "times_one": "{{count}} time",
+    "times_other": "{{count}} times",
+    "added": "Added",
+    "addToList": "To the list",
+    "none": "No purchases over these two months.",
+    "trendHint": "Average over the months with data: {{amount}}"
+  },
+  "combined": {
+    "familyOf": "{{name}}'s family",
+    "allHouseholds": "All households, this month",
+    "electricity": "Electricity: {{kwh}} kWh in total",
+    "open": "Open",
+    "kwhLine": "{{kwh}} kWh, at {{price}} per kWh"
+  },
+  "errors": {
+    "AI_NOT_CONFIGURED": "Reading receipts uses the AI assistant: a parent must first set it up in Settings → AI assistant.",
+    "AI_DISABLED": "The AI assistant is turned off in Settings.",
+    "AI_UNAUTHORIZED": "The AI assistant's key was refused. Check it in Settings.",
+    "AI_MODEL_NOT_FOUND": "The AI assistant's model was not found. Choose a model that reads images.",
+    "AI_UNREACHABLE": "The AI assistant does not answer. Try again in a moment.",
+    "AI_INVALID_RESPONSE": "The receipt could not be read. Take the photo again, flat and in better light.",
+    "AI_PROVIDER_ERROR": "The AI provider returned an error. Check that the chosen model reads images.",
+    "invalid_images": "Photo not supported (3 photos at most, JPEG or PNG).",
+    "invalid_kind": "Unknown purchase type.",
+    "missing_store": "Enter the store.",
+    "invalid_date": "Invalid date.",
+    "invalid_total": "Invalid amount.",
+    "invalid_kwh": "Invalid number of kWh.",
+    "invalid_category": "Choose a budget category.",
+    "photo": "This photo could not be opened.",
+    "generic": "Something went wrong. Please try again."
+  }
+}

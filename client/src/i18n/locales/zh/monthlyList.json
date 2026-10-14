@@ -1,0 +1,62 @@
+{
+  "back": "购物清单",
+  "title": "月度清单",
+  "subtitle": "勾选本月需要购买的商品，然后加入购物清单。",
+  "entry": {
+    "title": "月度清单",
+    "text": "准备本月采购"
+  },
+  "places": {
+    "store": "超市",
+    "market": "市场"
+  },
+  "moveTo": "移到{{place}}",
+  "selectedCount_other": "已勾选 {{count}} 项",
+  "summary_other": "已勾选 {{count}} 项",
+  "summaryMarket_other": "其中 {{count}} 项在市场",
+  "apply_other": "将 {{count}} 项加入清单",
+  "result": {
+    "added_other": "已将 {{count}} 项加入购物清单。",
+    "market_other": "其中 {{count}} 项在市场购买。",
+    "skipped_other": "{{count}} 项已在清单中。",
+    "open": "查看清单"
+  },
+  "empty": {
+    "title": "暂无历史",
+    "text": "在下方粘贴以前几个月的清单，或在“购买”中扫描小票：建议会显示在这里。也可以手动添加商品。"
+  },
+  "addOther": "添加其他商品",
+  "addPlaceholder": "例如：意面（笔管面）2",
+  "where": "在哪里买？",
+  "remove": "移除{{name}}",
+  "import": {
+    "title": "以前的清单",
+    "monthsCount_other": "{{count}} 个月",
+    "items_other": "{{count}} 项",
+    "confirmDelete": "删除",
+    "cancel": "取消",
+    "delete": "删除{{month}}的清单",
+    "hint": "粘贴以前几个月的清单（备忘录、WhatsApp 等），可以一次粘贴多个：像“7月采购”这样的标题会分隔月份。",
+    "textLabel": "要导入的清单",
+    "placeholder": "9月采购\n- 食用油\n- 洗衣粉\n- 土豆",
+    "monthLabel": "清单所属月份（文本未注明时）",
+    "submit": "导入",
+    "done": "已导入：{{months}}。",
+    "monthCount": "{{month}}（{{count}}）",
+    "errors": {
+      "missing_month": "请选择这份清单的月份。",
+      "no_items": "文本中没有找到商品。",
+      "too_long": "文本太长：请一次导入几个月。"
+    }
+  },
+  "errors": {
+    "load": "无法加载建议。",
+    "apply": "无法加入清单，请重试。",
+    "generic": "出错了，请重试。"
+  },
+  "others": "其他商品",
+  "allDone": {
+    "title": "清单已就绪",
+    "text": "所有商品都已在购物清单中。"
+  }
+}

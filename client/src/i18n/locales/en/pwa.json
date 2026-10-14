@@ -1,0 +1,9 @@
+{
+  "banner": {
+    "title": "Install {{app}} on this iPhone",
+    "steps": "Tap Share at the bottom of Safari, then \"Add to Home Screen\". The app will open full screen and can send you notifications.",
+    "dismiss": "Later",
+    "close": "Close"
+  },
+  "pushHint": "On iPhone, notifications work from the installed app: Share → \"Add to Home Screen\", then open it from its icon."
+}

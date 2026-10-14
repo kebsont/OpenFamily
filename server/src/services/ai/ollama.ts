@@ -36,7 +36,11 @@ export async function ollamaComplete(
                 model: settings.model,
                 messages: [
                     { role: 'system', content: request.system },
-                    { role: 'user', content: request.user },
+                    {
+                        role: 'user',
+                        content: request.user,
+                        ...(request.images?.length ? { images: request.images.map((image) => image.data) } : {}),
+                    },
                 ],
                 stream: false,
                 format,

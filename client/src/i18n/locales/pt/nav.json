@@ -12,7 +12,8 @@
     "family": "Família",
     "integrations": "Integrações",
     "settings": "Configurações",
-    "posts": "Publicações"
+    "posts": "Publicações",
+    "purchases": "Compras"
   },
   "mobile": {
     "home": "Início",
@@ -31,7 +32,9 @@
     "addMeal": "Adicionar refeição",
     "addExpense": "Adicionar despesa",
     "addMember": "Adicionar membro",
-    "addPost": "Nova publicação"
+    "addPost": "Nova publicação",
+    "scanReceipt": "Digitalizar um talão",
+    "addElectricity": "Carregamento de eletricidade"
   },
   "user": {
     "profile": "Perfil",

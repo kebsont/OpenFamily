@@ -19,6 +19,8 @@ import Planning from './pages/Planning';
 import Recipes from './pages/Recipes';
 import MealPlanning from './pages/MealPlanning';
 import Budget from './pages/Budget';
+import Purchases from './pages/Purchases';
+import MonthlyList from './pages/MonthlyList';
 import Family from './pages/Family';
 import Settings from './pages/Settings';
 import Join from './pages/Join';
@@ -80,6 +82,8 @@ function App() {
                 <Route path="/recipes" element={moduleRoute('recipes', <Recipes />)} />
                 <Route path="/meal-planning" element={moduleRoute('meals', <MealPlanning />)} />
                 <Route path="/budget" element={moduleRoute('budget', <Budget />)} />
+                <Route path="/purchases" element={<Purchases />} />
+                <Route path="/shopping/month" element={<MonthlyList />} />
                 <Route path="/family" element={<Family />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/integrations" element={moduleRoute('integrations', <Integrations />)} />

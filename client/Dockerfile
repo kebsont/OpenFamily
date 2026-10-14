@@ -38,6 +38,9 @@ ENV VITE_WS_URL=$VITE_WS_URL
 # time by Vite, so changing it requires rebuilding the image.
 ARG VITE_REGISTRATION_ENABLED=true
 ENV VITE_REGISTRATION_ENABLED=$VITE_REGISTRATION_ENABLED
+# Name under the home-screen icon once installed (foyers fork); empty = OpenFamily.
+ARG VITE_APP_NAME=
+ENV VITE_APP_NAME=$VITE_APP_NAME
 RUN cd client && npm run build
 
 # Production stage

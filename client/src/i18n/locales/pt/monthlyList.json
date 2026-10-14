@@ -1,0 +1,71 @@
+{
+  "back": "Lista de compras",
+  "title": "Lista do mês",
+  "subtitle": "Marque o que é preciso comprar este mês e adicione à lista de compras.",
+  "entry": {
+    "title": "Lista do mês",
+    "text": "Preparar as compras do mês"
+  },
+  "places": {
+    "store": "Supermercado",
+    "market": "Mercado"
+  },
+  "moveTo": "Mover para {{place}}",
+  "selectedCount_one": "{{count}} marcado",
+  "selectedCount_other": "{{count}} marcados",
+  "summary_one": "{{count}} artigo marcado",
+  "summary_other": "{{count}} artigos marcados",
+  "summaryMarket_one": "{{count}} no mercado",
+  "summaryMarket_other": "{{count}} no mercado",
+  "apply_one": "Adicionar {{count}} artigo à lista",
+  "apply_other": "Adicionar {{count}} artigos à lista",
+  "result": {
+    "added_one": "{{count}} artigo adicionado à lista de compras.",
+    "added_other": "{{count}} artigos adicionados à lista de compras.",
+    "market_one": "{{count}} deles para o mercado.",
+    "market_other": "{{count}} deles para o mercado.",
+    "skipped_one": "{{count}} já lá estava.",
+    "skipped_other": "{{count}} já lá estavam.",
+    "open": "Ver a lista"
+  },
+  "empty": {
+    "title": "Ainda sem histórico",
+    "text": "Cole abaixo as suas listas dos meses passados, ou digitalize os talões em Compras: as sugestões aparecerão aqui. Também pode adicionar artigos à mão."
+  },
+  "addOther": "Adicionar outro artigo",
+  "addPlaceholder": "Ex.: Massa (penne) 2",
+  "where": "Onde comprar?",
+  "remove": "Retirar {{name}}",
+  "import": {
+    "title": "Listas anteriores",
+    "monthsCount_one": "{{count}} mês",
+    "monthsCount_other": "{{count}} meses",
+    "items_one": "{{count}} artigo",
+    "items_other": "{{count}} artigos",
+    "confirmDelete": "Apagar",
+    "cancel": "Cancelar",
+    "delete": "Apagar a lista de {{month}}",
+    "hint": "Cole as suas listas dos meses passados (Notas, WhatsApp…), mesmo várias de uma vez: um título como «Compras do mês de julho» separa os meses.",
+    "textLabel": "Listas a importar",
+    "placeholder": "Compras do mês de setembro\n- Óleo\n- Detergente\n- Batatas",
+    "monthLabel": "Mês da lista, se o texto não o indicar",
+    "submit": "Importar",
+    "done": "Importado: {{months}}.",
+    "monthCount": "{{month}} ({{count}})",
+    "errors": {
+      "missing_month": "Indique o mês desta lista.",
+      "no_items": "Nenhum artigo encontrado neste texto.",
+      "too_long": "Texto demasiado longo: importe alguns meses de cada vez."
+    }
+  },
+  "errors": {
+    "load": "Não foi possível carregar as sugestões.",
+    "apply": "Não foi possível adicionar à lista. Tente novamente.",
+    "generic": "Ocorreu um erro. Tente novamente."
+  },
+  "others": "Outros produtos",
+  "allDone": {
+    "title": "Lista pronta",
+    "text": "Já está tudo na lista de compras."
+  }
+}

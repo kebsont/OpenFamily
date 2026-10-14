@@ -7,6 +7,7 @@ import { withTextLines } from '../lib/recipeLines';
 import { OPENFAMILY_VERSION } from '../version';
 import { cleanContent, cleanImage, cleanLink } from '../lib/postFields';
 import { cleanImageUrl } from '../lib/recipeImage';
+import { displayEmailSql } from '../lib/households';
 
 const PORTABLE_FORMAT = 'openfamily-portable';
 const PORTABLE_VERSION = '2.0';
@@ -205,7 +206,7 @@ const buildAccountMap = async (
     const refs = Array.isArray(data.account_refs) ? data.account_refs : [];
 
     const targetAccounts = await client.query(
-        `SELECT id, email
+        `SELECT id, ${displayEmailSql('users')} AS email
          FROM users
          WHERE id = $1 OR family_owner_id = $1`,
         [targetOwnerId]
@@ -279,7 +280,9 @@ router.get('/export', requireParent, async (req: AuthRequest, res) => {
             // Safe account references/preferences only. Passwords, tokens, roles,
             // ownership state and other authorization material are excluded.
             query(
-                `SELECT id, email, (id = $1) AS is_owner,
+                // A household opened from another account shows that account's
+                // e-mail, never its internal placeholder (foyers fork).
+                `SELECT id, ${displayEmailSql('users')} AS email, (id = $1) AS is_owner,
                         language, week_start_day, avatar_url, dashboard_prefs
                  FROM users
                  WHERE id = $1 OR family_owner_id = $1

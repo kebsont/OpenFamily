@@ -1,0 +1,143 @@
+{
+  "title": "Compras",
+  "subtitle": "Talões de caixa, pequenas despesas e carregamentos de eletricidade, comparados mês a mês.",
+  "tabs": {
+    "add": "Adicionar",
+    "history": "Histórico",
+    "analysis": "Análise",
+    "combined": "Lares"
+  },
+  "month": {
+    "previous": "Mês anterior",
+    "next": "Mês seguinte"
+  },
+  "delta": {
+    "new": "novo",
+    "same": "estável"
+  },
+  "lastMonth": "Mês passado: {{amount}}",
+  "fields": {
+    "store": "Loja",
+    "date": "Data",
+    "total": "Total pago",
+    "budgetCategory": "Categoria do orçamento",
+    "itemName": "Artigo",
+    "quantity": "Qtd.",
+    "lineTotal": "Valor",
+    "aisle": "Secção",
+    "amount": "Valor",
+    "kwh": "kWh recebidos",
+    "where": "Onde?",
+    "otherStore": "Nome da loja",
+    "what": "O quê?",
+    "whatPlaceholder": "ex.: pão, açúcar, lâmpada…"
+  },
+  "editor": {
+    "title": "Verificar o talão",
+    "checkHint": "Releia as linhas: a leitura automática pode enganar-se num talão amarrotado ou desbotado.",
+    "totalsMatch": "A soma das linhas ({{amount}}) corresponde ao total.",
+    "totalsDiffer": "A soma das linhas ({{lines}}) não corresponde ao total ({{total}}): uma linha pode estar mal lida ou em falta.",
+    "lines_one": "{{count}} artigo",
+    "lines_other": "{{count}} artigos",
+    "removeLine": "Remover a linha",
+    "addLine": "Adicionar uma linha"
+  },
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar"
+  },
+  "add": {
+    "scanTitle": "Digitalizar um talão",
+    "scanHint": "Fotografe o talão de caixa (2 ou 3 fotos se for comprido).",
+    "electricityTitle": "Carregamento de eletricidade",
+    "electricityHint": "Valor e kWh recebidos, para acompanhar o consumo.",
+    "quickTitle": "Pequena despesa",
+    "quickHint": "Loja do bairro, mercado, loja de ferragens…",
+    "reading": "A ler o talão…",
+    "readingHint": "Um talão comprido pode demorar até um minuto.",
+    "kwhHint": "Os kWh aparecem no recibo ou no SMS do carregamento.",
+    "savedReceipt": "Talão guardado e adicionado ao orçamento.",
+    "savedElectricity": "Carregamento guardado.",
+    "savedQuick": "Despesa guardada."
+  },
+  "stores": {
+    "Boutique": "Loja do bairro",
+    "Marché": "Mercado",
+    "Quincaillerie": "Loja de ferragens",
+    "Auchan": "Auchan",
+    "Woyofal": "Woyofal",
+    "other": "Outra"
+  },
+  "kinds": {
+    "electricity": "Eletricidade",
+    "quick": "Pequena despesa"
+  },
+  "history": {
+    "empty": "Nenhuma compra este mês.",
+    "deleteConfirm": "Eliminar esta compra ({{store}}, {{amount}})? Também será retirada do orçamento.",
+    "kwh": "{{kwh}} kWh",
+    "lines_one": "{{count}} artigo",
+    "lines_other": "{{count}} artigos",
+    "by": "registada por {{name}}"
+  },
+  "analysis": {
+    "empty": "Ainda nada para comparar: os números aparecem com as primeiras compras.",
+    "total": "Total do mês",
+    "receipts": "Compras (talões)",
+    "quick": "Pequenas despesas",
+    "electricity": "Eletricidade",
+    "kwhShort": "{{kwh}} kWh",
+    "trend": "Últimos seis meses",
+    "byStore": "Por loja",
+    "byAisle": "Por secção (talões)",
+    "products": "Produtos mais comprados",
+    "qty": "Quantidade: {{qty}}",
+    "qtyBefore": "no mês passado: {{qty}}",
+    "priceUp": "Preço médio +{{pct}} % ({{price}})",
+    "priceDown": "Preço médio −{{pct}} % ({{price}})",
+    "electricityTitle": "Eletricidade (Woyofal)",
+    "noElectricity": "Nenhum carregamento este mês.",
+    "spent": "Gasto",
+    "energy": "Energia",
+    "perKwh": "Preço do kWh",
+    "electricityCompare_one": "{{count}} carregamento este mês. No mês passado: {{before}} por {{kwh}} kWh.",
+    "electricityCompare_other": "{{count}} carregamentos este mês. No mês passado: {{before}} por {{kwh}} kWh.",
+    "smallShops": "Pequenas compras",
+    "noSmallShops": "Nenhuma pequena despesa este mês.",
+    "groupHint": "O que se compra muitas vezes na loja do bairro pode entrar nas compras do mês.",
+    "unnamed": "Sem detalhe",
+    "times_one": "{{count}} vez",
+    "times_other": "{{count}} vezes",
+    "added": "Adicionado",
+    "addToList": "Para a lista",
+    "none": "Nenhuma compra nestes dois meses.",
+    "trendHint": "Média dos meses com dados: {{amount}}"
+  },
+  "combined": {
+    "familyOf": "Família de {{name}}",
+    "allHouseholds": "Todos os lares, este mês",
+    "electricity": "Eletricidade: {{kwh}} kWh no total",
+    "open": "Aberto",
+    "kwhLine": "{{kwh}} kWh, a {{price}} por kWh"
+  },
+  "errors": {
+    "AI_NOT_CONFIGURED": "A leitura de talões usa o assistente de IA: um pai tem de o configurar primeiro em Definições → Assistente de IA.",
+    "AI_DISABLED": "O assistente de IA está desativado nas Definições.",
+    "AI_UNAUTHORIZED": "A chave do assistente de IA foi recusada. Verifique-a nas Definições.",
+    "AI_MODEL_NOT_FOUND": "O modelo do assistente de IA não foi encontrado. Escolha um modelo que leia imagens.",
+    "AI_UNREACHABLE": "O assistente de IA não responde. Tente novamente daqui a pouco.",
+    "AI_INVALID_RESPONSE": "Não foi possível ler o talão. Tire a foto de novo, plana e com mais luz.",
+    "AI_PROVIDER_ERROR": "O fornecedor de IA devolveu um erro. Verifique se o modelo escolhido lê imagens.",
+    "invalid_images": "Foto não suportada (no máximo 3 fotos, em JPEG ou PNG).",
+    "invalid_kind": "Tipo de compra desconhecido.",
+    "missing_store": "Indique a loja.",
+    "invalid_date": "Data inválida.",
+    "invalid_total": "Valor inválido.",
+    "invalid_kwh": "Número de kWh inválido.",
+    "invalid_category": "Escolha uma categoria do orçamento.",
+    "photo": "Não foi possível abrir esta foto.",
+    "generic": "Ocorreu um erro. Tente novamente."
+  }
+}

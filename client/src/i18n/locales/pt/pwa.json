@@ -1,0 +1,9 @@
+{
+  "banner": {
+    "title": "Instalar {{app}} neste iPhone",
+    "steps": "Toque em Partilhar, na parte de baixo do Safari, e depois em «Adicionar ao ecrã principal». A app abrirá em ecrã inteiro e poderá enviar-lhe notificações.",
+    "dismiss": "Mais tarde",
+    "close": "Fechar"
+  },
+  "pushHint": "No iPhone, as notificações funcionam a partir da app instalada: Partilhar → «Adicionar ao ecrã principal» e abra-a a partir do ícone."
+}

@@ -40,10 +40,19 @@ export async function geminiComplete(
         },
         body: JSON.stringify({
             system_instruction: { parts: [{ text: request.system }] },
-            contents: [{ role: 'user', parts: [{ text: request.user }] }],
+            contents: [{
+                role: 'user',
+                parts: [
+                    ...(request.images ?? []).map((image) => ({
+                        inline_data: { mime_type: image.mediaType, data: image.data },
+                    })),
+                    { text: request.user },
+                ],
+            }],
             generationConfig: {
                 responseMimeType: 'application/json',
                 responseJsonSchema: request.jsonSchema,
+                ...(request.maxTokens ? { maxOutputTokens: request.maxTokens } : {}),
             },
         }),
     });

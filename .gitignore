@@ -79,3 +79,6 @@ docs/config.php
 
 # Play Store assets (icone, captures, fiche) : local uniquement
 store/
+
+# Daily database backups made on the server
+backups/

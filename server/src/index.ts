@@ -23,28 +23,73 @@ wss.on('connection', (ws: WebSocket) => {
     logger.info('ws.connection_open');
 
     let userId: string | null = null;
+    // Every key this socket is registered under: the account itself and, for a
+    // family member, the family owner. Routes broadcast to the family scope
+    // (req.userId = owner), so a member's socket must sit under the owner's id
+    // too or members never see live updates. Per-account events still reach it
+    // through its own id.
+    let keys: string[] = [];
+
+    const unregister = () => {
+        for (const key of keys) {
+            const set = clients.get(key);
+            if (!set) continue;
+            set.delete(ws);
+            if (set.size === 0) clients.delete(key);
+        }
+        keys = [];
+    };
 
     ws.on('message', (message: string) => {
         try {
             const data = JSON.parse(message.toString());
 
             if (data.type === 'auth' && typeof data.token === 'string') {
-                try {
-                    const decoded = jwt.verify(data.token, getJwtSecret()) as { userId: string };
-                    userId = decoded.userId;
-
-                    if (!clients.has(userId)) {
-                        clients.set(userId, new Set());
-                    }
-                    clients.get(userId)!.add(ws);
-
-                    logger.info('ws.authenticated', { userId });
-                    ws.send(JSON.stringify({ type: 'auth', success: true }));
-                } catch {
+                const fail = () => {
                     logger.warn('ws.auth_failed');
                     ws.send(JSON.stringify({ type: 'auth', success: false }));
                     ws.close(4001, 'Unauthorized');
+                };
+
+                let decoded: { userId: string };
+                try {
+                    decoded = jwt.verify(data.token, getJwtSecret()) as { userId: string };
+                } catch {
+                    fail();
+                    return;
                 }
+
+                // Same rule as authMiddleware: the family comes from the database,
+                // so a member removed from a family stops hearing about it at once.
+                void pool
+                    .query('SELECT family_owner_id FROM users WHERE id = $1', [decoded.userId])
+                    .then((result) => {
+                        const row = result.rows[0] as { family_owner_id: string | null } | undefined;
+                        if (!row || ws.readyState !== WebSocket.OPEN) {
+                            if (!row) fail();
+                            return;
+                        }
+                        userId = decoded.userId;
+
+                        // A re-auth on the same socket replaces its registration.
+                        unregister();
+                        keys = Array.from(new Set([decoded.userId, row.family_owner_id ?? decoded.userId]));
+                        for (const key of keys) {
+                            if (!clients.has(key)) {
+                                clients.set(key, new Set());
+                            }
+                            clients.get(key)!.add(ws);
+                        }
+
+                        logger.info('ws.authenticated', { userId });
+                        ws.send(JSON.stringify({ type: 'auth', success: true }));
+                    })
+                    .catch((error) => {
+                        logger.warn('ws.auth_lookup_failed', {
+                            error: error instanceof Error ? error.message : String(error),
+                        });
+                        ws.close(1011, 'Server error');
+                    });
             }
             // ping/pong for keepalive — no response needed, TCP layer handles it
         } catch (error) {
@@ -55,11 +100,8 @@ wss.on('connection', (ws: WebSocket) => {
     });
 
     ws.on('close', () => {
-        if (userId && clients.has(userId)) {
-            clients.get(userId)!.delete(ws);
-            if (clients.get(userId)!.size === 0) {
-                clients.delete(userId);
-            }
+        if (userId) {
+            unregister();
             logger.info('ws.connection_closed', { userId });
         }
     });

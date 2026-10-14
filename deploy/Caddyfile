@@ -1,0 +1,9 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+	# L'appli (nginx) relaie elle-même /api et /ws vers le serveur.
+	reverse_proxy client:80
+}

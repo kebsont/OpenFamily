@@ -12,6 +12,8 @@ import { isNative, getServerUrl, clearServerUrl } from '../lib/serverConfig';
 import { useCategories, CATEGORY_MODULES, type CategoryModule } from '../hooks/useCategories';
 import { refreshAiStatus } from '../lib/aiStatus';
 import { aiErrorKey } from '../components/app/MagicInput';
+import { LinkedAccountsCard } from '../components/app/LinkedAccountsCard';
+import { needsHomeScreenInstall } from '../lib/pwa';
 
 interface ImportCounts {
     family_settings?: number;
@@ -52,6 +54,7 @@ const CURRENCIES = [
     { code: 'RUB', label: 'Russian Ruble (₽)' },
     { code: 'INR', label: 'Indian Rupee (₹)' },
     { code: 'BRL', label: 'Brazilian Real (R$)' },
+    { code: 'XOF', label: 'Franc CFA (F CFA)' },
 ];
 
 type AiProvider = 'ollama' | 'openai' | 'anthropic' | 'gemini';
@@ -854,6 +857,10 @@ const Settings: React.FC = () => {
                 </CardContent>
             </Card>
 
+            {/* Households: linked accounts and switching. Only for the person who
+                owns a household; its members have nothing to do here. */}
+            {user?.is_owner && <LinkedAccountsCard />}
+
             {/* First day of the week */}
             <RegionalPreferences />
 
@@ -988,9 +995,9 @@ const Settings: React.FC = () => {
                             </p>
 
                             {!isSupported && (
-                                <p className="mt-2 flex items-center gap-1 text-micro text-muted-foreground">
-                                    <AlertCircle className="h-4 w-4" />
-                                    {t('settings:notif.unsupported')}
+                                <p className="mt-2 flex items-start gap-1 text-micro text-muted-foreground">
+                                    <AlertCircle className="mt-px h-4 w-4 shrink-0" />
+                                    {needsHomeScreenInstall() ? t('pwa:pushHint') : t('settings:notif.unsupported')}
                                 </p>
                             )}
 

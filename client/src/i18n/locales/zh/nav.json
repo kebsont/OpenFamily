@@ -12,7 +12,8 @@
     "family": "家庭",
     "integrations": "集成",
     "settings": "设置",
-    "posts": "家庭动态"
+    "posts": "家庭动态",
+    "purchases": "购物"
   },
   "mobile": {
     "home": "首页",
@@ -31,7 +32,9 @@
     "addMeal": "添加餐食",
     "addExpense": "添加支出",
     "addMember": "添加成员",
-    "addPost": "新动态"
+    "addPost": "新动态",
+    "scanReceipt": "扫描小票",
+    "addElectricity": "电费充值"
   },
   "user": {
     "profile": "个人资料",

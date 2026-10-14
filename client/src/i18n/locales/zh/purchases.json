@@ -1,0 +1,139 @@
+{
+  "title": "购物",
+  "subtitle": "收银小票、零星开支和电费充值，按月对比。",
+  "tabs": {
+    "add": "添加",
+    "history": "记录",
+    "analysis": "分析",
+    "combined": "家庭"
+  },
+  "month": {
+    "previous": "上个月",
+    "next": "下个月"
+  },
+  "delta": {
+    "new": "新增",
+    "same": "持平"
+  },
+  "lastMonth": "上月：{{amount}}",
+  "fields": {
+    "store": "商店",
+    "date": "日期",
+    "total": "实付总额",
+    "budgetCategory": "预算类别",
+    "itemName": "商品",
+    "quantity": "数量",
+    "lineTotal": "金额",
+    "aisle": "货架类别",
+    "amount": "金额",
+    "kwh": "获得的千瓦时",
+    "where": "在哪里？",
+    "otherStore": "商店名称",
+    "what": "买了什么？",
+    "whatPlaceholder": "例如：面包、糖、灯泡……"
+  },
+  "editor": {
+    "title": "核对小票",
+    "checkHint": "请核对各行：小票褶皱或褪色时，自动识别可能出错。",
+    "totalsMatch": "各行合计（{{amount}}）与总额一致。",
+    "totalsDiffer": "各行合计（{{lines}}）与总额（{{total}}）不一致：可能有一行识别错误或遗漏。",
+    "lines_other": "{{count}} 件商品",
+    "removeLine": "删除此行",
+    "addLine": "添加一行"
+  },
+  "actions": {
+    "save": "保存",
+    "cancel": "取消",
+    "edit": "编辑",
+    "delete": "删除"
+  },
+  "add": {
+    "scanTitle": "扫描小票",
+    "scanHint": "拍摄收银小票（较长时可拍 2–3 张）。",
+    "electricityTitle": "电费充值",
+    "electricityHint": "记录金额和获得的千瓦时，跟踪用电量。",
+    "quickTitle": "零星开支",
+    "quickHint": "街角小店、市场、五金店……",
+    "reading": "正在识别小票……",
+    "readingHint": "较长的小票最多可能需要一分钟。",
+    "kwhHint": "千瓦时数印在充值凭条或短信中。",
+    "savedReceipt": "小票已保存并计入预算。",
+    "savedElectricity": "充值已保存。",
+    "savedQuick": "开支已保存。"
+  },
+  "stores": {
+    "Boutique": "街角小店",
+    "Marché": "市场",
+    "Quincaillerie": "五金店",
+    "Auchan": "Auchan",
+    "Woyofal": "Woyofal",
+    "other": "其他"
+  },
+  "kinds": {
+    "electricity": "电费",
+    "quick": "零星开支"
+  },
+  "history": {
+    "empty": "本月没有购物记录。",
+    "deleteConfirm": "删除这笔购物（{{store}}，{{amount}}）？它也会从预算中移除。",
+    "kwh": "{{kwh}} 千瓦时",
+    "lines_other": "{{count}} 件商品",
+    "by": "由 {{name}} 添加"
+  },
+  "analysis": {
+    "empty": "暂无可对比的数据：有了第一笔购物后就会显示。",
+    "total": "本月总计",
+    "receipts": "采购（小票）",
+    "quick": "零星开支",
+    "electricity": "电费",
+    "kwhShort": "{{kwh}} 千瓦时",
+    "trend": "最近六个月",
+    "byStore": "按商店",
+    "byAisle": "按货架类别（小票）",
+    "products": "购买最多的商品",
+    "qty": "数量：{{qty}}",
+    "qtyBefore": "上月：{{qty}}",
+    "priceUp": "平均价格上涨 {{pct}}%（{{price}}）",
+    "priceDown": "平均价格下降 {{pct}}%（{{price}}）",
+    "electricityTitle": "电费（Woyofal）",
+    "noElectricity": "本月没有充值。",
+    "spent": "花费",
+    "energy": "电量",
+    "perKwh": "每千瓦时价格",
+    "electricityCompare_other": "本月充值 {{count}} 次。上月：{{before}}，{{kwh}} 千瓦时。",
+    "smallShops": "零星购物",
+    "noSmallShops": "本月没有零星开支。",
+    "groupHint": "经常在街角小店买的东西，可以放进每月的大采购。",
+    "unnamed": "无说明",
+    "times_other": "{{count}} 次",
+    "added": "已添加",
+    "addToList": "加入清单",
+    "none": "这两个月没有购物记录。",
+    "trendHint": "有数据月份的平均值：{{amount}}"
+  },
+  "combined": {
+    "familyOf": "{{name}}的家庭",
+    "allHouseholds": "所有家庭（本月）",
+    "electricity": "电费：共 {{kwh}} 千瓦时",
+    "open": "当前",
+    "kwhLine": "{{kwh}} 千瓦时，每千瓦时 {{price}}"
+  },
+  "errors": {
+    "AI_NOT_CONFIGURED": "识别小票需要 AI 助手：请家长先在 设置 → AI 助手 中完成配置。",
+    "AI_DISABLED": "AI 助手已在设置中关闭。",
+    "AI_UNAUTHORIZED": "AI 助手的密钥被拒绝。请在设置中检查。",
+    "AI_MODEL_NOT_FOUND": "找不到 AI 助手的模型。请选择能识别图片的模型。",
+    "AI_UNREACHABLE": "AI 助手没有响应。请稍后再试。",
+    "AI_INVALID_RESPONSE": "无法识别这张小票。请把小票放平、光线充足后重拍。",
+    "AI_PROVIDER_ERROR": "AI 服务商返回错误。请确认所选模型能识别图片。",
+    "invalid_images": "不支持的照片（最多 3 张，JPEG 或 PNG）。",
+    "invalid_kind": "未知的购物类型。",
+    "missing_store": "请填写商店。",
+    "invalid_date": "日期无效。",
+    "invalid_total": "金额无效。",
+    "invalid_kwh": "千瓦时数无效。",
+    "invalid_category": "请选择预算类别。",
+    "photo": "无法打开这张照片。",
+    "generic": "出错了，请重试。"
+  }
+}

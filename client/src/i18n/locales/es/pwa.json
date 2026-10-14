@@ -1,0 +1,9 @@
+{
+  "banner": {
+    "title": "Instalar {{app}} en este iPhone",
+    "steps": "Toca Compartir en la parte inferior de Safari y luego «Añadir a pantalla de inicio». La app se abrirá a pantalla completa y podrá enviarte notificaciones.",
+    "dismiss": "Más tarde",
+    "close": "Cerrar"
+  },
+  "pushHint": "En iPhone, las notificaciones funcionan desde la app instalada: Compartir → «Añadir a pantalla de inicio» y ábrela desde su icono."
+}
