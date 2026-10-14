@@ -1,41 +1,35 @@
 {
-  "back": "Liste de courses",
-  "title": "Liste du mois",
-  "subtitle": "Cochez ce qu'il faut acheter ce mois-ci, puis ajoutez-le à la liste de courses.",
-  "entry": {
-    "title": "Liste du mois",
-    "text": "Préparer les courses du mois"
-  },
-  "places": {
-    "store": "Supermarché",
-    "market": "Marché"
-  },
-  "moveTo": "Déplacer vers {{place}}",
-  "selectedCount_one": "{{count}} coché",
-  "selectedCount_other": "{{count}} cochés",
-  "summary_one": "{{count}} article coché",
-  "summary_other": "{{count}} articles cochés",
-  "summaryMarket_one": "dont {{count}} au marché",
-  "summaryMarket_other": "dont {{count}} au marché",
-  "apply_one": "Ajouter {{count}} article à la liste",
-  "apply_other": "Ajouter {{count}} articles à la liste",
-  "result": {
-    "added_one": "{{count}} article ajouté à la liste de courses.",
-    "added_other": "{{count}} articles ajoutés à la liste de courses.",
-    "market_one": "Dont {{count}} pour le marché.",
-    "market_other": "Dont {{count}} pour le marché.",
-    "skipped_one": "{{count}} y était déjà.",
-    "skipped_other": "{{count}} y étaient déjà.",
-    "open": "Voir la liste"
-  },
-  "empty": {
-    "title": "Pas encore d'historique",
-    "text": "Collez ci-dessous vos listes des mois passés, ou scannez vos tickets dans Achats : les suggestions apparaîtront ici. Vous pouvez aussi ajouter des articles à la main."
-  },
-  "addOther": "Ajouter un autre article",
-  "addPlaceholder": "Ex. : Pâtes (penne) 2",
-  "where": "Où l'acheter ?",
+  "title": "Courses",
+  "progress": "{{done}} sur {{total}}",
+  "addPlaceholder": "Ajouter un produit…",
+  "addHint": "Un produit par ligne, comme dans Notes : Entrée pour passer au suivant.",
+  "emptyNote": "Rien sur la liste de {{month}}.",
   "remove": "Retirer {{name}}",
+  "edit": "Modifier {{name}}",
+  "usual": {
+    "title": "Produits habituels",
+    "startHint": "Commencez avec les produits habituels, puis retirez ce qui n'est pas fini.",
+    "start_one": "Ajouter le produit habituel",
+    "start_other": "Ajouter les {{count}} produits habituels",
+    "addAll_one": "Ajouter",
+    "addAll_other": "Tout ajouter ({{count}})",
+    "more": "D'autres produits",
+    "less": "Moins de produits"
+  },
+  "extra": {
+    "title": "Aussi à acheter"
+  },
+  "detailed": "Liste détaillée (rayons, prix)",
+  "entry": {
+    "title": "Courses du mois",
+    "text": "La liste simple, mois par mois"
+  },
+  "errors": {
+    "load": "Impossible de charger la liste.",
+    "save": "Ce n'est pas enregistré. Vérifiez la connexion.",
+    "duplicate": "« {{name}} » est déjà sur la liste.",
+    "generic": "Une erreur est survenue. Réessayez."
+  },
   "import": {
     "title": "Anciennes listes",
     "monthsCount_one": "{{count}} mois",
@@ -57,15 +51,5 @@
       "no_items": "Aucun article trouvé dans ce texte.",
       "too_long": "Texte trop long : importez quelques mois à la fois."
     }
-  },
-  "errors": {
-    "load": "Impossible de charger les suggestions.",
-    "apply": "Impossible d'ajouter à la liste. Réessayez.",
-    "generic": "Une erreur est survenue. Réessayez."
-  },
-  "others": "Autres produits",
-  "allDone": {
-    "title": "Liste prête",
-    "text": "Tout est déjà dans la liste de courses."
   }
 }

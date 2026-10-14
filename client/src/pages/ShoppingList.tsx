@@ -524,9 +524,9 @@ const ShoppingList: React.FC = () => {
                 )}
             </div>
 
-            {/* Monthly list (foyers fork): the month's big run, from the previous months. */}
+            {/* foyers fork: back to the simple list of the month. */}
             <Link
-                to="/shopping/month"
+                to="/shopping"
                 className="flex items-center gap-3 rounded-card border border-border bg-card p-4 shadow-surface transition-colors hover:border-primary"
             >
                 <span className="rounded-card bg-primary-soft p-2 text-primary">

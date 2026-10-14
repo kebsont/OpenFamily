@@ -117,16 +117,19 @@ La même clé peut servir à tous les foyers. Un ticket coûte quelques francs C
 
 Sans clé, les recharges Woyofal et les petites dépenses fonctionnent quand même.
 
-## 7. La liste du mois
+## 7. Les courses du mois
 
-Dans **Listes → Liste du mois**, l'appli prépare les grosses courses à partir des mois précédents. Elle n'affiche que les produits, à cocher :
+Le menu **Courses** (onglet **Listes** sur téléphone) est une liste par mois, qui s'écrit comme dans Notes :
 
-- en haut, déjà cochés, les produits qui devraient manquer ce mois-ci : ceux achetés presque chaque mois, ceux qui reviennent tous les deux ou trois mois quand c'est le moment, et ceux pris plusieurs fois à la boutique le mois d'avant (sauf le pain et les autres produits frais du jour) ;
-- dessous, sous **Autres produits**, le reste, non coché.
+- un produit par ligne, **Entrée** pour passer au suivant. Plusieurs lignes collées d'un coup sont toutes ajoutées ;
+- on coche dans le magasin. Un appui sur un produit le corrige, la croix le retire ;
+- les flèches à côté du mois remontent aux listes des mois précédents, telles qu'elles étaient : c'est l'historique.
 
-Les produits sont séparés entre Auchan et le marché (poisson, viande, légumes…). Le bouton ⇄ déplace un produit de l'un à l'autre, et l'appli s'en souvient. **Ajouter à la liste** met les produits cochés dans la liste de courses ; ceux du marché vont sous un rayon **Marché**, à part en mode magasin.
+En début de mois, un bouton ajoute d'un coup les **produits habituels** : ceux achetés presque chaque mois, ceux qui reviennent tous les deux ou trois mois quand c'est le moment, et ceux pris plusieurs fois à la boutique le mois d'avant (sauf le pain et les autres produits frais du jour). On retire ensuite ce qui n'est pas fini. Les autres produits déjà achetés restent proposés sous la liste, d'un appui.
 
-**Pour démarrer**, colle une fois dans chaque foyer ses anciennes listes (Notes, WhatsApp) dans **Anciennes listes**, plusieurs mois d'un coup : les titres comme « Courses du mois de juillet » séparent les mois. Ensuite, chaque liste du mois, chaque ticket scanné et chaque petite dépense enrichissent les suggestions sans rien faire de plus.
+**Pour démarrer**, colle une fois dans chaque foyer ses anciennes listes (Notes, WhatsApp) dans **Anciennes listes**, plusieurs mois d'un coup : les titres comme « Courses du mois de juillet » séparent les mois, et les cases déjà cochées le restent.
+
+Ce que les recettes ou les menus ajoutent à la liste de courses apparaît sous **Aussi à acheter**. La liste détaillée d'origine (rayons, prix, modèles) reste accessible en bas de la page.
 
 Quand des tickets sont scannés, l'IA reprend les noms des listes (« Huile », « Omo »…) : les achats et les listes se comparent directement.
 
@@ -179,7 +182,7 @@ sudo ./deploy/compose.sh start server
 | Plusieurs foyers pour un seul compte, menu « Foyers » | Le propriétaire crée ses foyers depuis Paramètres et passe de l'un à l'autre sans se déconnecter. Personne d'autre ne gagne d'accès. Il est aussi possible de lier des comptes séparés existants, avec leur mot de passe. |
 | Le foyer d'une session est relu en base à chaque requête | Avant, un membre retiré d'une famille gardait l'accès à ses données jusqu'à 7 jours, le temps que sa session expire. |
 | Synchro en temps réel pour les membres | Avant, seul le propriétaire voyait les changements des autres sans recharger la page. |
-| Liste du mois | Prépare les courses du mois à partir des listes, tickets et petits achats précédents, Auchan et marché séparés. |
+| Courses du mois | Une liste par mois écrite comme une note, cochée au magasin, avec l'historique des mois précédents et les produits habituels en un appui. |
 | Bandeau d'installation sur iPhone, nom de l'appli au choix | Sur iPhone, l'appli doit être ajoutée à l'écran d'accueil pour s'ouvrir en plein écran et recevoir les notifications. |
 | Menu « Achats » | Tickets de caisse lus par l'IA, recharges Woyofal, petites dépenses, et comparaison d'un mois à l'autre. Tout s'ajoute aussi au budget. |
 | Franc CFA dans les devises | — |

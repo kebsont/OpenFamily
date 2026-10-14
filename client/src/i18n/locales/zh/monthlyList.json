@@ -1,34 +1,33 @@
 {
-  "back": "购物清单",
-  "title": "月度清单",
-  "subtitle": "勾选本月需要购买的商品，然后加入购物清单。",
-  "entry": {
-    "title": "月度清单",
-    "text": "准备本月采购"
-  },
-  "places": {
-    "store": "超市",
-    "market": "市场"
-  },
-  "moveTo": "移到{{place}}",
-  "selectedCount_other": "已勾选 {{count}} 项",
-  "summary_other": "已勾选 {{count}} 项",
-  "summaryMarket_other": "其中 {{count}} 项在市场",
-  "apply_other": "将 {{count}} 项加入清单",
-  "result": {
-    "added_other": "已将 {{count}} 项加入购物清单。",
-    "market_other": "其中 {{count}} 项在市场购买。",
-    "skipped_other": "{{count}} 项已在清单中。",
-    "open": "查看清单"
-  },
-  "empty": {
-    "title": "暂无历史",
-    "text": "在下方粘贴以前几个月的清单，或在“购买”中扫描小票：建议会显示在这里。也可以手动添加商品。"
-  },
-  "addOther": "添加其他商品",
-  "addPlaceholder": "例如：意面（笔管面）2",
-  "where": "在哪里买？",
+  "title": "采购",
+  "progress": "{{done}} / {{total}}",
+  "addPlaceholder": "添加商品…",
+  "addHint": "每行一个商品，就像在备忘录里一样：按回车继续下一个。",
+  "emptyNote": "{{month}}的清单是空的。",
   "remove": "移除{{name}}",
+  "edit": "修改{{name}}",
+  "usual": {
+    "title": "常买商品",
+    "startHint": "先加入常买商品，再删去还没用完的。",
+    "start_other": "加入 {{count}} 个常买商品",
+    "addAll_other": "全部加入（{{count}}）",
+    "more": "其他商品",
+    "less": "收起"
+  },
+  "extra": {
+    "title": "还要买"
+  },
+  "detailed": "详细清单（分类、价格）",
+  "entry": {
+    "title": "本月采购",
+    "text": "简单的清单，按月记录"
+  },
+  "errors": {
+    "load": "无法加载清单。",
+    "save": "未保存，请检查网络。",
+    "duplicate": "“{{name}}”已在清单中。",
+    "generic": "出错了，请重试。"
+  },
   "import": {
     "title": "以前的清单",
     "monthsCount_other": "{{count}} 个月",
@@ -48,15 +47,5 @@
       "no_items": "文本中没有找到商品。",
       "too_long": "文本太长：请一次导入几个月。"
     }
-  },
-  "errors": {
-    "load": "无法加载建议。",
-    "apply": "无法加入清单，请重试。",
-    "generic": "出错了，请重试。"
-  },
-  "others": "其他商品",
-  "allDone": {
-    "title": "清单已就绪",
-    "text": "所有商品都已在购物清单中。"
   }
 }

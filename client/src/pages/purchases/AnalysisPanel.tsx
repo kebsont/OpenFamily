@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, Loader2, Plus } from 'lucide-react';
-import { api } from '../../lib/api';
 import { cn } from '../../lib/utils';
-import { useCategories } from '../../hooks/useCategories';
-import { change, type Analysis } from '../../lib/purchases';
+import { change, thisMonth, type Analysis } from '../../lib/purchases';
+import { addLines } from '../../lib/monthlyList';
 import { BarRow, classes, dayLabel, Delta, Empty, monthLabel, Section, useMoney } from './ui';
 
 /** Small shops worth replacing by the monthly supermarket run. */
@@ -13,7 +12,6 @@ const CORNER_SHOPS = new Set(['boutique']);
 export const AnalysisPanel: React.FC<{ data: Analysis | null; loading: boolean }> = ({ data, loading }) => {
     const { t } = useTranslation(['purchases', 'budget', 'shopping']);
     const money = useMoney();
-    const { categories } = useCategories();
     const [added, setAdded] = useState<Set<string>>(new Set());
     const [adding, setAdding] = useState<string | null>(null);
 
@@ -30,15 +28,12 @@ export const AnalysisPanel: React.FC<{ data: Analysis | null; loading: boolean }
     const maxAisle = Math.max(0, ...data.aisles.map((s) => Math.max(s.total, s.previous)));
     const maxTrend = Math.max(0, ...data.trend.map((m) => m.total));
 
-    const addToList = async (what: string, count: number) => {
+    const addToList = async (what: string) => {
         const key = what.toLowerCase();
         setAdding(key);
         try {
-            await api.post('/api/shopping', {
-                name: what,
-                category: categories.shopping.includes('Alimentation') ? 'Alimentation' : categories.shopping[0] ?? 'Autre',
-                quantity: count,
-            });
+            // On this month's list, for the big run instead of the corner shop.
+            await addLines(thisMonth(), what);
             setAdded((s) => new Set(s).add(key));
         } finally {
             setAdding(null);
@@ -206,7 +201,7 @@ export const AnalysisPanel: React.FC<{ data: Analysis | null; loading: boolean }
                                                 ) : (
                                                     <button
                                                         type="button"
-                                                        onClick={() => void addToList(s.what, s.count)}
+                                                        onClick={() => void addToList(s.what)}
                                                         disabled={adding !== null}
                                                         className="flex items-center gap-1 rounded-input border border-border px-2 py-1 text-micro font-medium text-primary hover:bg-primary-soft"
                                                     >

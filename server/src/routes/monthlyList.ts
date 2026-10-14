@@ -1,21 +1,19 @@
-// Monthly list ("Liste du mois"): the big shopping run of the month, prepared
-// from what the household bought the previous months.
+// Monthly shopping list ("Courses"): one list per month, written like a note
+// (one product per line) and ticked in the shop. Past months stay as they
+// were: that is the history.
 //
-// History comes from three places, all scoped to the household (req.userId):
-// - the monthly lists themselves (monthly_list_items): the lists applied from
-//   this page, and older lists pasted once from notes or WhatsApp;
+// What the household listed and bought before also suggests the usual
+// products of a new month. History comes from three places, all scoped to the
+// household (req.userId):
+// - the monthly lists themselves (monthly_list_items), including older lists
+//   pasted once from notes or WhatsApp;
 // - receipt lines (purchases), so what was bought counts even off the list;
 // - small expenses with what was bought (corner shop, market).
 //
 // A product bought every month is suggested every month. One bought every two
-// or three months is suggested once that time has passed since the last time,
-// and listed apart otherwise ("not finished yet?"). Products bought several
-// times at the corner shop last month are suggested for the big run. Each
-// product goes either to the supermarket or to the market; the household moves
-// a product once and the app remembers.
-//
-// POST /apply adds the chosen products to the shopping list (market ones under
-// a "Marché" aisle, created when needed) and records them as this month's list.
+// or three months is suggested once that time has passed since the last time.
+// Products bought several times at the corner shop last month are suggested
+// for the big run, except daily fresh ones.
 
 import { Router } from 'express';
 import { getClient, query } from '../db';
@@ -33,9 +31,9 @@ const MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
 const WINDOW = 6; // months of history looked at
 const MAX_TEXT = 60_000;
 const MAX_IMPORT_MONTHS = 24;
-const MAX_APPLY = 300;
+const MAX_LINES = 200; // lines added at once
+const MAX_ITEMS = 400; // lines in one month
 const MAX_OCCASIONAL = 40;
-const MAX_CATEGORIES = 30;
 
 type Place = 'store' | 'market';
 type Status = 'due' | 'not_yet' | 'occasional' | 'planned' | 'in_list';
@@ -291,6 +289,8 @@ export async function buildSuggestions(ownerId: string, month: string) {
     };
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 const readMonth = (value: unknown): string | null =>
     typeof value === 'string' && MONTH_PATTERN.test(value) ? value : null;
 
@@ -306,16 +306,154 @@ router.get('/suggestions', async (req: AuthRequest, res) => {
     }
 });
 
-const UPSERT_LINE = `INSERT INTO monthly_list_items (user_id, month, name, product_key, quantity, detail)
-    VALUES ($1, $2, $3, $4, $5, $6)
-    ON CONFLICT (user_id, month, product_key) DO UPDATE SET
-        name = EXCLUDED.name,
-        quantity = COALESCE(EXCLUDED.quantity, monthly_list_items.quantity),
-        detail = COALESCE(EXCLUDED.detail, monthly_list_items.detail)`;
+const ITEM_COLUMNS = `id, to_char(month, 'YYYY-MM') AS month, name, quantity::float8 AS quantity, detail, checked, position`;
+
+const monthItems = async (ownerId: string, month: string) =>
+    (await query(
+        `SELECT ${ITEM_COLUMNS} FROM monthly_list_items
+         WHERE user_id = $1 AND month = $2 ORDER BY position, created_at`,
+        [ownerId, `${month}-01`]
+    )).rows;
+
+const history = async (ownerId: string) =>
+    (await query(
+        `SELECT to_char(month, 'YYYY-MM') AS month, COUNT(*)::int AS count
+         FROM monthly_list_items WHERE user_id = $1
+         GROUP BY month ORDER BY month DESC LIMIT 24`,
+        [ownerId]
+    )).rows;
+
+const changed = (ownerId: string) => broadcast(ownerId, { type: 'update', entity: 'shopping', action: 'updated' });
+
+// GET /month?month=YYYY-MM — that month's list, in the order it was written.
+router.get('/month', async (req: AuthRequest, res) => {
+    try {
+        const month = readMonth(req.query.month);
+        if (!month) return res.status(400).json({ success: false, error: 'invalid_month' });
+        const [items, months] = await Promise.all([monthItems(req.userId!, month), history(req.userId!)]);
+        return res.json({ success: true, data: { month, items, history: months } });
+    } catch (error) {
+        console.error('Monthly list read error:', error);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// POST /items { month, text } — one product per line, added at the end. A
+// product already on the list is not added twice.
+router.post('/items', requireParent, async (req: AuthRequest, res) => {
+    try {
+        const month = readMonth(req.body?.month);
+        if (!month) return res.status(400).json({ success: false, error: 'invalid_month' });
+        const raw = typeof req.body?.text === 'string' ? req.body.text.slice(0, MAX_TEXT) : '';
+        const lines = raw.split(/\r?\n/).map(parseLine).filter((l): l is NonNullable<typeof l> => l !== null).slice(0, MAX_LINES);
+        if (lines.length === 0) return res.status(400).json({ success: false, error: 'no_items' });
+
+        const client = await getClient();
+        try {
+            await client.query('BEGIN');
+            // One writer at a time per household and month keeps positions in order.
+            await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`${req.userId}:${month}`]);
+            const existing = await client.query(
+                'SELECT product_key, position FROM monthly_list_items WHERE user_id = $1 AND month = $2',
+                [req.userId, `${month}-01`]
+            );
+            const keys = new Set((existing.rows as Array<{ product_key: string }>).map((r) => r.product_key));
+            let position = Math.max(0, ...(existing.rows as Array<{ position: number }>).map((r) => r.position));
+            if (keys.size + lines.length > MAX_ITEMS) {
+                await client.query('ROLLBACK');
+                return res.status(400).json({ success: false, error: 'too_many' });
+            }
+            for (const line of lines) {
+                if (keys.has(line.key)) continue;
+                keys.add(line.key);
+                position += 1;
+                await client.query(
+                    `INSERT INTO monthly_list_items (user_id, month, name, product_key, quantity, detail, checked, position)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+                    [req.userId, `${month}-01`, line.name, line.key, line.quantity, line.detail, line.checked, position]
+                );
+            }
+            await client.query('COMMIT');
+        } catch (error) {
+            await client.query('ROLLBACK').catch(() => {});
+            throw error;
+        } finally {
+            client.release();
+        }
+
+        changed(req.userId!);
+        return res.json({ success: true, data: { month, items: await monthItems(req.userId!, month) } });
+    } catch (error) {
+        console.error('Monthly list add error:', error);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// PUT /items/:id { checked?, text? } — tick in the shop, or fix a line.
+router.put('/items/:id', requireParent, async (req: AuthRequest, res) => {
+    try {
+        const { id } = req.params;
+        if (!UUID_PATTERN.test(id)) return res.status(404).json({ success: false, error: 'not_found' });
+        const sets: string[] = [];
+        const values: unknown[] = [];
+        if (typeof req.body?.checked === 'boolean') {
+            values.push(req.body.checked);
+            sets.push(`checked = $${values.length}`);
+        }
+        if (req.body?.text !== undefined) {
+            const line = parseLine(text(req.body.text, 200));
+            if (!line) return res.status(400).json({ success: false, error: 'no_items' });
+            const duplicate = await query(
+                `SELECT 1 FROM monthly_list_items o
+                 JOIN monthly_list_items m ON m.id = $2 AND m.user_id = $1
+                 WHERE o.user_id = $1 AND o.month = m.month AND o.product_key = $3 AND o.id <> m.id`,
+                [req.userId, id, line.key]
+            );
+            if (duplicate.rows.length > 0) return res.status(409).json({ success: false, error: 'duplicate' });
+            values.push(line.name, line.key, line.quantity, line.detail);
+            const n = values.length;
+            sets.push(`name = $${n - 3}`, `product_key = $${n - 2}`, `quantity = $${n - 1}`, `detail = $${n}`);
+        }
+        if (sets.length === 0) return res.status(400).json({ success: false, error: 'nothing_to_change' });
+        values.push(id, req.userId);
+        const result = await query(
+            `UPDATE monthly_list_items SET ${sets.join(', ')}
+             WHERE id = $${values.length - 1} AND user_id = $${values.length}
+             RETURNING ${ITEM_COLUMNS}`,
+            values
+        ).catch((error: { code?: string }) => {
+            if (error?.code === '23505') return null; // the same product is already on that list
+            throw error;
+        });
+        if (result === null) return res.status(409).json({ success: false, error: 'duplicate' });
+        if (result.rows.length === 0) return res.status(404).json({ success: false, error: 'not_found' });
+        changed(req.userId!);
+        return res.json({ success: true, data: result.rows[0] });
+    } catch (error) {
+        console.error('Monthly list update error:', error);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// DELETE /items/:id
+router.delete('/items/:id', requireParent, async (req: AuthRequest, res) => {
+    try {
+        const { id } = req.params;
+        if (!UUID_PATTERN.test(id)) return res.status(404).json({ success: false, error: 'not_found' });
+        const result = await query('DELETE FROM monthly_list_items WHERE id = $1 AND user_id = $2', [id, req.userId]);
+        if (!result.rowCount) return res.status(404).json({ success: false, error: 'not_found' });
+        changed(req.userId!);
+        return res.json({ success: true });
+    } catch (error) {
+        console.error('Monthly list delete error:', error);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
 
 // POST /import { text, month? } — older lists pasted from notes or WhatsApp.
 // Titles such as "Courses du mois de Juillet" split the text by month; lines
-// before any title go to `month`.
+// before any title go to `month`. Ticks ("[x]") are kept; a month that
+// already has a list keeps it and gets the missing lines at the end.
 router.post('/import', requireParent, async (req: AuthRequest, res) => {
     try {
         const raw = typeof req.body?.text === 'string' ? req.body.text : '';
@@ -335,8 +473,22 @@ router.post('/import', requireParent, async (req: AuthRequest, res) => {
         try {
             await client.query('BEGIN');
             for (const list of lists) {
+                await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`${req.userId}:${list.month!.slice(0, 7)}`]);
+                const existing = await client.query(
+                    'SELECT product_key, position FROM monthly_list_items WHERE user_id = $1 AND month = $2',
+                    [req.userId, list.month]
+                );
+                const keys = new Set((existing.rows as Array<{ product_key: string }>).map((r) => r.product_key));
+                let position = Math.max(0, ...(existing.rows as Array<{ position: number }>).map((r) => r.position));
                 for (const item of list.items) {
-                    await client.query(UPSERT_LINE, [req.userId, list.month, item.name, item.key, item.quantity, item.detail]);
+                    if (keys.has(item.key)) continue;
+                    keys.add(item.key);
+                    position += 1;
+                    await client.query(
+                        `INSERT INTO monthly_list_items (user_id, month, name, product_key, quantity, detail, checked, position)
+                         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+                        [req.userId, list.month, item.name, item.key, item.quantity, item.detail, item.checked, position]
+                    );
                 }
             }
             await client.query('COMMIT');
@@ -347,6 +499,7 @@ router.post('/import', requireParent, async (req: AuthRequest, res) => {
             client.release();
         }
 
+        changed(req.userId!);
         return res.json({
             success: true,
             data: { months: lists.map((l) => ({ month: l.month!.slice(0, 7), count: l.items.length })) },
@@ -366,104 +519,10 @@ router.delete('/history/:month', requireParent, async (req: AuthRequest, res) =>
             'DELETE FROM monthly_list_items WHERE user_id = $1 AND month = $2',
             [req.userId, `${month}-01`]
         );
+        changed(req.userId!);
         return res.json({ success: true, data: { deleted: result.rowCount ?? 0 } });
     } catch (error) {
         console.error('Monthly list delete error:', error);
-        return res.status(500).json({ success: false, error: 'Internal server error' });
-    }
-});
-
-// POST /apply { month, items: [{ name, place, quantity?, detail?, category? }] }
-router.post('/apply', requireParent, async (req: AuthRequest, res) => {
-    try {
-        const month = readMonth(req.body?.month);
-        if (!month) return res.status(400).json({ success: false, error: 'invalid_month' });
-        const rawItems: unknown[] = Array.isArray(req.body?.items) ? req.body.items : [];
-        if (rawItems.length === 0 || rawItems.length > MAX_APPLY) {
-            return res.status(400).json({ success: false, error: 'no_items' });
-        }
-
-        const items = new Map<string, { name: string; key: string; place: Place; quantity: number | null; detail: string | null; category: string }>();
-        for (const entry of rawItems) {
-            if (!entry || typeof entry !== 'object') continue;
-            const e = entry as Record<string, unknown>;
-            // A product typed by hand may carry its detail or quantity
-            // ("Pâtes (penne)", "Huile 3"), like the pasted lists.
-            const line = parseLine(text(e.name, 120));
-            if (!line || items.has(line.key)) continue;
-            const quantity = typeof e.quantity === 'number' && e.quantity > 0 && e.quantity < 1000 ? e.quantity : line.quantity;
-            items.set(line.key, {
-                name: line.name,
-                key: line.key,
-                place: e.place === 'market' ? 'market' : 'store',
-                quantity,
-                detail: text(e.detail, 200) || line.detail,
-                category: text(e.category, 50),
-            });
-        }
-        if (items.size === 0) return res.status(400).json({ success: false, error: 'no_items' });
-
-        const categories = await getFamilyCategories(req.userId!);
-        const shelfAisles = categories.shopping.filter((c) => c !== MARKET_CATEGORY);
-        const needsMarket = [...items.values()].some((i) => i.place === 'market');
-        let marketAisle = categories.shopping.includes(MARKET_CATEGORY);
-
-        const client = await getClient();
-        let added = 0;
-        let skipped = 0;
-        let market = 0;
-        try {
-            await client.query('BEGIN');
-
-            // Market products get their own aisle in the shopping list, so the
-            // store mode shows them apart from the supermarket ones.
-            if (needsMarket && !marketAisle && categories.shopping.length < MAX_CATEGORIES) {
-                categories.shopping = [...categories.shopping, MARKET_CATEGORY];
-                await client.query('UPDATE users SET custom_categories = $1 WHERE id = $2', [JSON.stringify(categories), req.userId]);
-                marketAisle = true;
-            }
-
-            const pending = await client.query(
-                'SELECT name FROM shopping_items WHERE user_id = $1 AND is_checked IS NOT TRUE',
-                [req.userId]
-            );
-            const pendingKeys = new Set((pending.rows as Array<{ name: string }>).map((r) => listNameKey(r.name)));
-
-            for (const item of items.values()) {
-                await client.query(UPSERT_LINE, [req.userId, `${month}-01`, item.name, item.key, item.quantity, item.detail]);
-                await client.query(
-                    `INSERT INTO product_places (user_id, product_key, place) VALUES ($1, $2, $3)
-                     ON CONFLICT (user_id, product_key) DO UPDATE SET place = EXCLUDED.place, updated_at = now()`,
-                    [req.userId, item.key, item.place]
-                );
-                if (pendingKeys.has(item.key)) {
-                    skipped += 1;
-                    continue;
-                }
-                const aisle = item.place === 'market' && marketAisle
-                    ? MARKET_CATEGORY
-                    : shelfAisles.includes(item.category) ? item.category : guessAisle(item.key, shelfAisles);
-                await client.query(
-                    `INSERT INTO shopping_items (user_id, name, category, quantity, notes)
-                     VALUES ($1, $2, $3, $4, $5)`,
-                    [req.userId, item.detail ? `${item.name} (${item.detail})` : item.name, aisle, item.quantity, null]
-                );
-                pendingKeys.add(item.key);
-                added += 1;
-                if (item.place === 'market') market += 1;
-            }
-            await client.query('COMMIT');
-        } catch (error) {
-            await client.query('ROLLBACK').catch(() => {});
-            throw error;
-        } finally {
-            client.release();
-        }
-
-        broadcast(req.userId!, { type: 'update', entity: 'shopping', action: 'created' });
-        return res.json({ success: true, data: { added, skipped, market } });
-    } catch (error) {
-        console.error('Monthly list apply error:', error);
         return res.status(500).json({ success: false, error: 'Internal server error' });
     }
 });

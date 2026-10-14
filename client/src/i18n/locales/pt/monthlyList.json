@@ -1,41 +1,35 @@
 {
-  "back": "Lista de compras",
-  "title": "Lista do mês",
-  "subtitle": "Marque o que é preciso comprar este mês e adicione à lista de compras.",
-  "entry": {
-    "title": "Lista do mês",
-    "text": "Preparar as compras do mês"
-  },
-  "places": {
-    "store": "Supermercado",
-    "market": "Mercado"
-  },
-  "moveTo": "Mover para {{place}}",
-  "selectedCount_one": "{{count}} marcado",
-  "selectedCount_other": "{{count}} marcados",
-  "summary_one": "{{count}} artigo marcado",
-  "summary_other": "{{count}} artigos marcados",
-  "summaryMarket_one": "{{count}} no mercado",
-  "summaryMarket_other": "{{count}} no mercado",
-  "apply_one": "Adicionar {{count}} artigo à lista",
-  "apply_other": "Adicionar {{count}} artigos à lista",
-  "result": {
-    "added_one": "{{count}} artigo adicionado à lista de compras.",
-    "added_other": "{{count}} artigos adicionados à lista de compras.",
-    "market_one": "{{count}} deles para o mercado.",
-    "market_other": "{{count}} deles para o mercado.",
-    "skipped_one": "{{count}} já lá estava.",
-    "skipped_other": "{{count}} já lá estavam.",
-    "open": "Ver a lista"
-  },
-  "empty": {
-    "title": "Ainda sem histórico",
-    "text": "Cole abaixo as suas listas dos meses passados, ou digitalize os talões em Compras: as sugestões aparecerão aqui. Também pode adicionar artigos à mão."
-  },
-  "addOther": "Adicionar outro artigo",
-  "addPlaceholder": "Ex.: Massa (penne) 2",
-  "where": "Onde comprar?",
+  "title": "Compras",
+  "progress": "{{done}} de {{total}}",
+  "addPlaceholder": "Adicionar um produto…",
+  "addHint": "Um produto por linha, como nas Notas: Enter para passar ao seguinte.",
+  "emptyNote": "Nada na lista de {{month}}.",
   "remove": "Retirar {{name}}",
+  "edit": "Alterar {{name}}",
+  "usual": {
+    "title": "Produtos habituais",
+    "startHint": "Comece com os produtos habituais e retire o que ainda não acabou.",
+    "start_one": "Adicionar o produto habitual",
+    "start_other": "Adicionar os {{count}} produtos habituais",
+    "addAll_one": "Adicionar",
+    "addAll_other": "Adicionar tudo ({{count}})",
+    "more": "Outros produtos",
+    "less": "Menos produtos"
+  },
+  "extra": {
+    "title": "Também para comprar"
+  },
+  "detailed": "Lista detalhada (secções, preços)",
+  "entry": {
+    "title": "Compras do mês",
+    "text": "A lista simples, mês a mês"
+  },
+  "errors": {
+    "load": "Não foi possível carregar a lista.",
+    "save": "Não foi guardado. Verifique a ligação.",
+    "duplicate": "«{{name}}» já está na lista.",
+    "generic": "Ocorreu um erro. Tente novamente."
+  },
   "import": {
     "title": "Listas anteriores",
     "monthsCount_one": "{{count}} mês",
@@ -57,15 +51,5 @@
       "no_items": "Nenhum artigo encontrado neste texto.",
       "too_long": "Texto demasiado longo: importe alguns meses de cada vez."
     }
-  },
-  "errors": {
-    "load": "Não foi possível carregar as sugestões.",
-    "apply": "Não foi possível adicionar à lista. Tente novamente.",
-    "generic": "Ocorreu um erro. Tente novamente."
-  },
-  "others": "Outros produtos",
-  "allDone": {
-    "title": "Lista pronta",
-    "text": "Já está tudo na lista de compras."
   }
 }

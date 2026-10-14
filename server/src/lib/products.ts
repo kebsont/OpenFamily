@@ -100,6 +100,8 @@ export interface ListLine {
     key: string;
     quantity: number | null;
     detail: string | null;
+    /** Ticked in the pasted note ("- [x] Riz", "✅ Riz"). */
+    checked: boolean;
 }
 
 export interface ParsedList {
@@ -137,6 +139,7 @@ export const headerMonth = (line: string, today: Date): string | null => {
 
 /** One line of a list → name, quantity and detail ("Pâtes (tagliatelles)"). */
 export const parseLine = (raw: string): ListLine | null => {
+    const checked = /^\s*(?:[-*•–]\s*)?(?:\[[xX✓✔]\]|[☑✅✔✓])/.test(raw);
     let s = raw
         .replace(/^\s*(?:[-*•–]\s*)?(?:\[[^\]]{0,2}\]\s*|[☐☑✅✔✓]\s*)?(?:\d+[.)]\s+)?/, '')
         .replace(/\s+/g, ' ')
@@ -171,7 +174,7 @@ export const parseLine = (raw: string): ListLine | null => {
     const name = displayName(s).slice(0, 120);
     const key = productKey(name);
     if (!key) return null;
-    return { name, key, quantity, detail: detail ? detail.slice(0, 200) : null };
+    return { name, key, quantity, detail: detail ? detail.slice(0, 200) : null, checked };
 };
 
 /**

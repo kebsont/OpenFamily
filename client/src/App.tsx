@@ -73,7 +73,10 @@ function App() {
         <Layout>
             <Routes>
                 <Route path="/" element={<Dashboard />} />
-                <Route path="/shopping" element={<ShoppingList />} />
+                {/* foyers fork: the monthly list, written like a note, is the shopping page;
+                    the detailed list (aisles, prices, templates) stays one tap away. */}
+                <Route path="/shopping" element={<MonthlyList />} />
+                <Route path="/shopping/all" element={<ShoppingList />} />
                 <Route path="/tasks" element={<Tasks />} />
                 <Route path="/posts" element={<Posts />} />
                 <Route path="/rewards" element={moduleRoute('rewards', <Rewards />)} />
@@ -83,7 +86,7 @@ function App() {
                 <Route path="/meal-planning" element={moduleRoute('meals', <MealPlanning />)} />
                 <Route path="/budget" element={moduleRoute('budget', <Budget />)} />
                 <Route path="/purchases" element={<Purchases />} />
-                <Route path="/shopping/month" element={<MonthlyList />} />
+                <Route path="/shopping/month" element={<Navigate to="/shopping" replace />} />
                 <Route path="/family" element={<Family />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/integrations" element={moduleRoute('integrations', <Integrations />)} />

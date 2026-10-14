@@ -115,4 +115,18 @@ export const foyersMigrations: readonly Migration[] = [
              WHERE email LIKE 'foyer-%@foyers.invalid'`,
         ],
     },
+    {
+        // The monthly list becomes the shopping list itself, written like a
+        // note: lines keep the order they were written in and are ticked in
+        // the shop.
+        id: 'foyers/0006-monthly-list-ticks',
+        statements: [
+            'ALTER TABLE monthly_list_items ADD COLUMN checked BOOLEAN NOT NULL DEFAULT false',
+            'ALTER TABLE monthly_list_items ADD COLUMN position INTEGER NOT NULL DEFAULT 0',
+            `UPDATE monthly_list_items m SET position = o.rn
+             FROM (SELECT id, ROW_NUMBER() OVER (PARTITION BY user_id, month ORDER BY created_at, name) AS rn
+                   FROM monthly_list_items) o
+             WHERE o.id = m.id`,
+        ],
+    },
 ];

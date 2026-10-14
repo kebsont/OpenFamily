@@ -1,346 +1,405 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-    AlertCircle, ArrowLeftRight, Check, CheckCircle, ChevronLeft, ClipboardList, Loader2, Plus, ShoppingBasket, Store, Trash2,
-} from 'lucide-react';
+import { AlertCircle, Check, CheckCircle, ClipboardList, Loader2, Plus, Trash2, X } from 'lucide-react';
 import { Button, Textarea } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
+import { useWebSocketUpdates } from '../hooks/useWebSocketUpdates';
+import { api } from '../lib/api';
 import {
-    applyMonthlyList,
-    defaultListMonth,
+    addLines,
+    deleteItem,
     deleteListMonth,
+    getMonth,
     getSuggestions,
     importLists,
-    type ApplyItem,
-    type Place,
+    lineText,
+    updateItem,
+    type ListItem,
+    type MonthList,
     type Suggestion,
-    type Suggestions,
 } from '../lib/monthlyList';
 import { shiftMonth, thisMonth } from '../lib/purchases';
 import { cn } from '../lib/utils';
-import { Empty, MonthPicker, monthLabel, Section } from './purchases/ui';
+import { intlLocale } from '../i18n/format';
+import { MonthPicker, monthLabel } from './purchases/ui';
 
-/** Already on this month's list or in the shopping list: nothing to tick. */
-const isDone = (item: Suggestion) => item.status === 'planned' || item.status === 'in_list';
-
-interface Custom {
-    id: number;
+/** A line of the general shopping list (recipes, menus…), shown under the note. */
+interface GeneralItem {
+    id: string;
     name: string;
-    place: Place;
+    quantity?: number | null;
+    is_checked: boolean;
 }
 
+const monthName = (month: string) => {
+    const [y, m] = month.split('-').map(Number);
+    return new Intl.DateTimeFormat(intlLocale(), { month: 'long' }).format(new Date(y, m - 1, 1));
+};
+
 /**
- * The big shopping run of the month, prepared from the previous months: the
- * products usually needed are ticked, the others are one tap away. Just the
- * products, supermarket and market apart; a product moved from one to the
- * other stays there.
+ * The shopping list of the month, written like a note: one product per line,
+ * Enter for the next one, ticked in the shop. Earlier months stay as they
+ * were (the arrows go back through them). For the current month, the usual
+ * products are one tap away.
  */
 const MonthlyList: React.FC = () => {
     const { t } = useTranslation('monthlyList');
     const { user } = useAuth();
     const canEdit = Boolean(user?.is_owner) || (user?.role ?? '').toLowerCase() !== 'enfant';
+    const current = thisMonth();
 
-    const [month, setMonth] = useState(defaultListMonth());
-    const [data, setData] = useState<Suggestions | null>(null);
+    const [month, setMonth] = useState(current);
+    const [list, setList] = useState<MonthList | null>(null);
+    const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+    const [general, setGeneral] = useState<GeneralItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [loadError, setLoadError] = useState('');
-    const [selected, setSelected] = useState<Set<string>>(new Set());
-    const [places, setPlaces] = useState<Map<string, Place>>(new Map());
-    const [custom, setCustom] = useState<Custom[]>([]);
-    const [newName, setNewName] = useState('');
-    const [newPlace, setNewPlace] = useState<Place>('store');
-    const [applying, setApplying] = useState(false);
-    const [applyError, setApplyError] = useState('');
-    const [result, setResult] = useState<{ added: number; skipped: number; market: number } | null>(null);
+    const [loadFailed, setLoadFailed] = useState(false);
+    const [error, setError] = useState('');
+    const [draft, setDraft] = useState('');
+    const [adding, setAdding] = useState(false);
+    const [editing, setEditing] = useState<string | null>(null);
+    const [editText, setEditText] = useState('');
+    const [showMore, setShowMore] = useState(false);
     const [showImport, setShowImport] = useState(false);
-    // Opening the page once this month's list is done goes to next month's.
-    const firstLoad = useRef(true);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
+    const upcoming = month >= current;
 
-    const load = useCallback(async (keepResult = false) => {
-        setLoading(true);
-        setLoadError('');
-        if (!keepResult) setResult(null);
+    const loadSuggestions = useCallback(async () => {
+        if (month < thisMonth()) {
+            setSuggestions([]);
+            return;
+        }
         try {
-            const next = await getSuggestions(month);
-            if (firstLoad.current) {
-                firstLoad.current = false;
-                if (month === thisMonth() && next.history.some((h) => h.month === month)) {
-                    setMonth(shiftMonth(month, 1));
-                    return;
-                }
-            }
-            setData(next);
-            setSelected(new Set(next.items.filter((i) => i.status === 'due').map((i) => i.key)));
-            setPlaces(new Map());
-            setShowImport((open) => open || next.history.length === 0);
+            setSuggestions((await getSuggestions(month)).items);
         } catch {
-            setLoadError('load');
-        } finally {
-            setLoading(false);
+            setSuggestions([]);
         }
     }, [month]);
 
+    const load = useCallback(async () => {
+        setLoading(true);
+        setLoadFailed(false);
+        try {
+            const [next, others] = await Promise.all([
+                getMonth(month),
+                month === thisMonth()
+                    ? api.get<{ success: boolean; data: GeneralItem[] }>('/api/shopping').then((r) => r.data).catch(() => [])
+                    : Promise.resolve([] as GeneralItem[]),
+            ]);
+            setList(next);
+            setGeneral(others.filter((i) => !i.is_checked));
+            setShowImport((open) => open || next.history.length === 0);
+        } catch {
+            setLoadFailed(true);
+        } finally {
+            setLoading(false);
+        }
+        void loadSuggestions();
+    }, [month, loadSuggestions]);
+
     useEffect(() => {
+        setEditing(null);
+        setShowMore(false);
         void load();
     }, [load]);
 
-    const placeOf = (item: Suggestion): Place => places.get(item.key) ?? item.place;
-    const storeLabel = data?.store_label || t('places.store');
-    const placeLabel = (place: Place) => (place === 'market' ? t('places.market') : storeLabel);
+    // Another phone of the household ticked or added something.
+    useWebSocketUpdates('shopping', () => {
+        if (!editing) void load();
+    });
 
-    const toggle = (key: string) =>
-        setSelected((s) => {
-            const next = new Set(s);
-            if (next.has(key)) next.delete(key);
-            else next.add(key);
-            return next;
-        });
-    const move = (item: Suggestion) =>
-        setPlaces((m) => new Map(m).set(item.key, placeOf(item) === 'market' ? 'store' : 'market'));
+    const items = list?.items ?? [];
+    const done = items.filter((i) => i.checked).length;
 
-    const visible = useMemo(() => (data?.items ?? []).filter((i) => !isDone(i)), [data]);
-    const chosen = useMemo(() => visible.filter((i) => selected.has(i.key)), [visible, selected]);
-    const chosenCount = chosen.length + custom.length;
-    const marketCount = chosen.filter((i) => placeOf(i) === 'market').length + custom.filter((c) => c.place === 'market').length;
-
-    const apply = async () => {
-        if (!data || chosenCount === 0) return;
-        const items: ApplyItem[] = [
-            ...chosen.map((i) => ({ name: i.name, place: placeOf(i), quantity: i.quantity, detail: i.detail, category: i.category })),
-            ...custom.map((c) => ({ name: c.name, place: c.place })),
-        ];
-        setApplying(true);
-        setApplyError('');
+    const add = async (text: string) => {
+        if (!text.trim()) return;
+        setAdding(true);
+        setError('');
         try {
-            setResult(await applyMonthlyList(month, items));
-            setCustom([]);
-            await load(true);
+            const next = await addLines(month, text);
+            setList((l) => (l ? { ...l, items: next } : l));
+            setDraft('');
+            void loadSuggestions();
         } catch {
-            setApplyError(t('errors.apply'));
+            setError(t('errors.save'));
         } finally {
-            setApplying(false);
+            setAdding(false);
+            inputRef.current?.focus();
         }
     };
 
-    const addCustom = (e: React.FormEvent) => {
-        e.preventDefault();
-        const name = newName.trim();
-        if (!name) return;
-        setCustom((list) => [...list, { id: Date.now(), name, place: newPlace }]);
-        setNewName('');
+    const onDraftKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        // Enter adds the line and keeps the keyboard open, like a note.
+        if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+            e.preventDefault();
+            void add(draft);
+        }
     };
 
-    const row = (item: Suggestion) => {
-        const checked = selected.has(item.key);
-        const target = placeOf(item) === 'market' ? 'store' : 'market';
-        return (
-            <li key={item.key} className="flex items-center gap-2 py-2">
+    const onDraftChange = (value: string) => {
+        // Several lines pasted at once (from Notes, WhatsApp): all added.
+        if (value.includes('\n')) void add(value);
+        else setDraft(value);
+    };
+
+    const replaceItem = (item: ListItem) =>
+        setList((l) => (l ? { ...l, items: l.items.map((i) => (i.id === item.id ? item : i)) } : l));
+
+    const toggle = async (item: ListItem) => {
+        replaceItem({ ...item, checked: !item.checked });
+        try {
+            await updateItem(item.id, { checked: !item.checked });
+        } catch {
+            replaceItem(item);
+            setError(t('errors.save'));
+        }
+    };
+
+    const remove = async (item: ListItem) => {
+        setList((l) => (l ? { ...l, items: l.items.filter((i) => i.id !== item.id) } : l));
+        try {
+            await deleteItem(item.id);
+            void loadSuggestions();
+        } catch {
+            void load();
+            setError(t('errors.save'));
+        }
+    };
+
+    const startEdit = (item: ListItem) => {
+        if (!canEdit) return;
+        setEditing(item.id);
+        setEditText(lineText(item));
+    };
+
+    const saveEdit = async (item: ListItem) => {
+        const text = editText.trim();
+        setEditing(null);
+        if (!text || text === lineText(item)) return;
+        try {
+            replaceItem(await updateItem(item.id, { text }));
+        } catch (err) {
+            setError(err instanceof Error && err.message === 'duplicate' ? t('errors.duplicate', { name: text }) : t('errors.save'));
+        }
+    };
+
+    const toggleGeneral = async (item: GeneralItem) => {
+        setGeneral((list) => list.filter((i) => i.id !== item.id));
+        try {
+            await api.put(`/api/shopping/${item.id}`, { is_checked: true });
+        } catch {
+            void load();
+        }
+    };
+
+    const removeGeneral = async (item: GeneralItem) => {
+        setGeneral((list) => list.filter((i) => i.id !== item.id));
+        try {
+            await api.delete(`/api/shopping/${item.id}`);
+        } catch {
+            void load();
+        }
+    };
+
+    const usual = suggestions.filter((s) => s.status === 'due');
+    const others = suggestions.filter((s) => s.status === 'not_yet' || s.status === 'occasional');
+    const chip = (s: Suggestion) => (
+        <button
+            key={s.key}
+            type="button"
+            disabled={adding}
+            onClick={() => void add(lineText(s))}
+            className="flex items-center gap-1 rounded-pill border border-border bg-card px-3 py-1.5 text-caption text-foreground transition-colors hover:border-primary hover:bg-primary-soft hover:text-primary"
+        >
+            <Plus className="h-3.5 w-3.5" />
+            {s.name}
+        </button>
+    );
+
+    const line = (item: ListItem) => (
+        <li key={item.id} className="flex items-center gap-3 py-2">
+            <button
+                type="button"
+                role="checkbox"
+                aria-checked={item.checked}
+                aria-label={item.name}
+                disabled={!canEdit}
+                onClick={() => void toggle(item)}
+                className={cn(
+                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors',
+                    item.checked ? 'border-primary bg-primary text-primary-foreground' : 'border-input'
+                )}
+            >
+                {item.checked && <Check className="h-3.5 w-3.5" />}
+            </button>
+            {editing === item.id ? (
+                <input
+                    autoFocus
+                    className="input-nexus min-w-0 flex-1 py-1 text-body"
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    onBlur={() => void saveEdit(item)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') e.currentTarget.blur();
+                        if (e.key === 'Escape') setEditing(null);
+                    }}
+                    aria-label={t('edit', { name: item.name })}
+                />
+            ) : (
                 <button
                     type="button"
-                    role="checkbox"
-                    aria-checked={checked}
-                    disabled={!canEdit}
-                    onClick={() => toggle(item.key)}
-                    className="flex min-w-0 flex-1 items-center gap-3 py-1 text-left disabled:cursor-default"
+                    onClick={() => startEdit(item)}
+                    className={cn(
+                        'min-w-0 flex-1 text-left text-body',
+                        item.checked ? 'text-muted-foreground line-through' : 'text-foreground'
+                    )}
                 >
-                    <span className={cn(
-                        'flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2',
-                        checked ? 'border-primary bg-primary text-primary-foreground' : 'border-input'
-                    )}>
-                        {checked && <Check className="h-3.5 w-3.5" />}
-                    </span>
-                    <span className="min-w-0 text-caption font-medium text-foreground">
-                        {item.name}
-                        {item.quantity ? <span className="font-normal text-muted-foreground"> ×{item.quantity}</span> : null}
-                        {item.detail ? <span className="font-normal text-muted-foreground"> ({item.detail})</span> : null}
-                    </span>
+                    {lineText(item)}
                 </button>
-                {canEdit && (
-                    <button
-                        type="button"
-                        onClick={() => move(item)}
-                        className="shrink-0 rounded-input p-2 text-muted-foreground hover:bg-surface-2 hover:text-foreground"
-                        aria-label={t('moveTo', { place: placeLabel(target) })}
-                        title={t('moveTo', { place: placeLabel(target) })}
-                    >
-                        <ArrowLeftRight className="h-4 w-4" />
-                    </button>
-                )}
-            </li>
-        );
-    };
-
-    const placeSection = (place: Place) => {
-        const items = visible.filter((i) => placeOf(i) === place);
-        const extra = custom.filter((c) => c.place === place);
-        if (items.length === 0 && extra.length === 0) return null;
-        // Grouped by what was ticked at first, so a product does not jump
-        // around when it is ticked or unticked.
-        const usual = items.filter((i) => i.status === 'due');
-        const others = items.filter((i) => i.status !== 'due');
-        const count = items.filter((i) => selected.has(i.key)).length + extra.length;
-        return (
-            <Section
-                key={place}
-                title={placeLabel(place)}
-                action={<span className="text-micro text-muted-foreground">{t('selectedCount', { count })}</span>}
-            >
-                <div className="space-y-3">
-                    {(usual.length > 0 || extra.length > 0) && (
-                        <ul className="divide-y divide-border">
-                            {usual.map(row)}
-                            {extra.map((c) => (
-                                <li key={c.id} className="flex items-center gap-3 py-2">
-                                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 border-primary bg-primary text-primary-foreground">
-                                        <Check className="h-3.5 w-3.5" />
-                                    </span>
-                                    <span className="min-w-0 flex-1 text-caption font-medium text-foreground">{c.name}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => setCustom((list) => list.filter((x) => x.id !== c.id))}
-                                        className="shrink-0 rounded-input p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                                        aria-label={t('remove', { name: c.name })}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                    {others.length > 0 && (
-                        <div>
-                            <p className="text-micro font-semibold uppercase tracking-wide text-muted-foreground">{t('others')}</p>
-                            <ul className="divide-y divide-border">{others.map(row)}</ul>
-                        </div>
-                    )}
-                </div>
-            </Section>
-        );
-    };
-
-    const applyButton = (
-        <Button onClick={() => void apply()} disabled={applying || chosenCount === 0} className="w-full whitespace-nowrap">
-            {applying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShoppingBasket className="mr-2 h-4 w-4" />}
-            {t('apply', { count: chosenCount })}
-        </Button>
+            )}
+            {canEdit && editing !== item.id && (
+                <button
+                    type="button"
+                    onClick={() => void remove(item)}
+                    className="shrink-0 rounded-input p-1.5 text-muted-foreground/60 hover:bg-destructive/10 hover:text-destructive"
+                    aria-label={t('remove', { name: item.name })}
+                >
+                    <X className="h-4 w-4" />
+                </button>
+            )}
+        </li>
     );
-
-    const historyCard = data && (
-        <HistoryCard
-            history={data.history}
-            open={showImport}
-            onToggle={() => setShowImport((o) => !o)}
-            onChanged={() => void load()}
-            defaultMonth={shiftMonth(month, -1)}
-        />
-    );
-
-    const hasItems = visible.length > 0;
-    const showList = hasItems || custom.length > 0;
-    // Everything suggested is already on the list (just applied, or added by hand).
-    const allDone = !showList && (data?.items.length ?? 0) > 0;
 
     return (
         <div className="mx-auto max-w-2xl space-y-4">
-            <Link to="/shopping" className="inline-flex items-center gap-1 text-caption text-muted-foreground hover:text-foreground">
-                <ChevronLeft className="h-4 w-4" />
-                {t('back')}
-            </Link>
-            <div>
+            <div className="flex items-baseline justify-between gap-3">
                 <h2 className="text-title font-bold text-foreground">{t('title')}</h2>
-                <p className="text-caption text-muted-foreground">{t('subtitle')}</p>
+                {items.length > 0 && <span className="text-caption text-muted-foreground">{t('progress', { done, total: items.length })}</span>}
             </div>
 
-            <MonthPicker month={month} onChange={setMonth} max={shiftMonth(thisMonth(), 1)} />
+            <MonthPicker month={month} onChange={setMonth} max={shiftMonth(current, 1)} />
 
-            {result && (
-                <div className="flex items-start gap-2 rounded-card bg-emerald-50 px-4 py-3 text-caption text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
-                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                    <span className="flex-1">
-                        {t('result.added', { count: result.added })}
-                        {result.market > 0 && ` ${t('result.market', { count: result.market })}`}
-                        {result.skipped > 0 && ` ${t('result.skipped', { count: result.skipped })}`}
-                        {' '}
-                        <Link to="/shopping" className="font-semibold underline">{t('result.open')}</Link>
-                    </span>
-                </div>
+            {error && (
+                <p className="flex items-center gap-1 text-caption text-destructive" role="alert">
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    {error}
+                </p>
             )}
 
-            {loading && !data ? (
+            {loading && !list ? (
                 <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
-            ) : loadError ? (
+            ) : loadFailed || !list ? (
                 <p className="flex items-center gap-1 text-caption text-destructive"><AlertCircle className="h-4 w-4" />{t('errors.load')}</p>
-            ) : data && (
+            ) : (
                 <>
-                    {allDone ? (
-                        <Section title={t('allDone.title')}>
-                            <Empty>{t('allDone.text')}</Empty>
-                        </Section>
-                    ) : !showList ? (
-                        <>
-                            <Section title={t('empty.title')}>
-                                <Empty>{t('empty.text')}</Empty>
-                            </Section>
-                            {canEdit && data.history.length === 0 && historyCard}
-                        </>
-                    ) : (
-                        <>
-                            {canEdit && (
-                                <div className="space-y-2 rounded-card border border-border bg-card p-4 shadow-surface">
-                                    <p className="text-caption text-foreground">
-                                        {t('summary', { count: chosenCount })}
-                                        {marketCount > 0 && <span className="text-muted-foreground"> · {t('summaryMarket', { count: marketCount })}</span>}
-                                    </p>
-                                    {applyButton}
-                                    {applyError && <p className="flex items-center gap-1 text-micro text-destructive"><AlertCircle className="h-4 w-4" />{applyError}</p>}
-                                </div>
+                    {canEdit && upcoming && items.length === 0 && usual.length > 0 && (
+                        <div className="space-y-3 rounded-card border border-primary/30 bg-primary-soft p-4">
+                            <p className="text-caption text-foreground">{t('usual.startHint')}</p>
+                            <Button onClick={() => void add(usual.map(lineText).join('\n'))} disabled={adding} className="w-full whitespace-nowrap">
+                                {adding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+                                {t('usual.start', { count: usual.length })}
+                            </Button>
+                        </div>
+                    )}
+
+                    <section className="rounded-card border border-border bg-card px-4 py-2 shadow-surface">
+                        {items.length > 0 ? (
+                            <ul className="divide-y divide-border">{items.map(line)}</ul>
+                        ) : (
+                            <p className="py-3 text-caption text-muted-foreground">{t('emptyNote', { month: monthName(month) })}</p>
+                        )}
+                        {canEdit && (
+                            <div className="flex items-start gap-3 border-t border-border py-2">
+                                <span className="mt-1.5 flex h-6 w-6 shrink-0 items-center justify-center text-muted-foreground">
+                                    {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                                </span>
+                                <textarea
+                                    ref={inputRef}
+                                    rows={1}
+                                    value={draft}
+                                    onChange={(e) => onDraftChange(e.target.value)}
+                                    onKeyDown={onDraftKey}
+                                    placeholder={t('addPlaceholder')}
+                                    aria-label={t('addPlaceholder')}
+                                    enterKeyHint="enter"
+                                    autoCapitalize="sentences"
+                                    className="min-h-9 min-w-0 flex-1 resize-none bg-transparent py-1.5 text-body text-foreground outline-none placeholder:text-muted-foreground"
+                                />
+                            </div>
+                        )}
+                    </section>
+                    {canEdit && items.length === 0 && <p className="text-micro text-muted-foreground">{t('addHint')}</p>}
+
+                    {canEdit && upcoming && (usual.length > 0 || others.length > 0) && !(items.length === 0 && usual.length > 0) && (
+                        <section className="space-y-3 rounded-card border border-border bg-card p-4 shadow-surface">
+                            <div className="flex items-center justify-between gap-2">
+                                <h3 className="text-caption font-semibold text-foreground">{t('usual.title')}</h3>
+                                {usual.length > 1 && (
+                                    <button type="button" disabled={adding} onClick={() => void add(usual.map(lineText).join('\n'))} className="text-caption font-semibold text-primary">
+                                        {t('usual.addAll', { count: usual.length })}
+                                    </button>
+                                )}
+                            </div>
+                            {usual.length > 0 && <div className="flex flex-wrap gap-2">{usual.map(chip)}</div>}
+                            {others.length > 0 && (
+                                <>
+                                    <button type="button" onClick={() => setShowMore((v) => !v)} className="text-caption text-muted-foreground underline">
+                                        {showMore ? t('usual.less') : t('usual.more')}
+                                    </button>
+                                    {showMore && <div className="flex flex-wrap gap-2">{others.map(chip)}</div>}
+                                </>
                             )}
-                            {placeSection('store')}
-                            {placeSection('market')}
-                        </>
+                        </section>
+                    )}
+
+                    {general.length > 0 && (
+                        <section className="rounded-card border border-border bg-card px-4 py-3 shadow-surface">
+                            <h3 className="mb-1 text-caption font-semibold text-foreground">{t('extra.title')}</h3>
+                            <ul className="divide-y divide-border">
+                                {general.map((item) => (
+                                    <li key={item.id} className="flex items-center gap-3 py-2">
+                                        <button
+                                            type="button"
+                                            role="checkbox"
+                                            aria-checked={false}
+                                            aria-label={item.name}
+                                            disabled={!canEdit}
+                                            onClick={() => void toggleGeneral(item)}
+                                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-input"
+                                        />
+                                        <span className="min-w-0 flex-1 text-body text-foreground">
+                                            {item.name}{item.quantity ? ` ${Number(item.quantity)}` : ''}
+                                        </span>
+                                        {canEdit && (
+                                            <button
+                                                type="button"
+                                                onClick={() => void removeGeneral(item)}
+                                                className="shrink-0 rounded-input p-1.5 text-muted-foreground/60 hover:bg-destructive/10 hover:text-destructive"
+                                                aria-label={t('remove', { name: item.name })}
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </button>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
                     )}
 
                     {canEdit && (
-                        <form onSubmit={addCustom} className="space-y-2 rounded-card border border-border bg-card p-4 shadow-surface">
-                            <label htmlFor="monthly-new" className="block text-caption font-semibold text-foreground">{t('addOther')}</label>
-                            <div className="flex gap-2">
-                                <input
-                                    id="monthly-new"
-                                    className="input-nexus min-w-0 flex-1 text-caption"
-                                    value={newName}
-                                    maxLength={120}
-                                    placeholder={t('addPlaceholder')}
-                                    onChange={(e) => setNewName(e.target.value)}
-                                />
-                                <Button type="submit" size="icon" aria-label={t('addOther')} disabled={!newName.trim()}>
-                                    <Plus className="h-4 w-4" />
-                                </Button>
-                            </div>
-                            <div className="flex gap-2" role="radiogroup" aria-label={t('where')}>
-                                {(['store', 'market'] as Place[]).map((p) => (
-                                    <button
-                                        key={p}
-                                        type="button"
-                                        role="radio"
-                                        aria-checked={newPlace === p}
-                                        onClick={() => setNewPlace(p)}
-                                        className={cn(
-                                            'flex items-center gap-1 rounded-pill border px-3 py-1 text-micro font-medium',
-                                            newPlace === p ? 'border-primary bg-primary-soft text-primary' : 'border-border text-muted-foreground'
-                                        )}
-                                    >
-                                        {p === 'store' ? <Store className="h-3.5 w-3.5" /> : <ShoppingBasket className="h-3.5 w-3.5" />}
-                                        {placeLabel(p)}
-                                    </button>
-                                ))}
-                            </div>
-                        </form>
+                        <HistoryCard
+                            history={list.history}
+                            open={showImport}
+                            onToggle={() => setShowImport((o) => !o)}
+                            onChanged={() => void load()}
+                            defaultMonth={shiftMonth(current, -1)}
+                        />
                     )}
 
-                    {canEdit && showList && chosenCount > 0 && applyButton}
-
-                    {canEdit && (showList || data.history.length > 0) && historyCard}
+                    <Link to="/shopping/all" className="block text-center text-caption text-muted-foreground underline">
+                        {t('detailed')}
+                    </Link>
                 </>
             )}
         </div>

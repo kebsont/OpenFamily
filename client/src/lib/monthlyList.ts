@@ -1,9 +1,25 @@
-// Monthly list ("Liste du mois"): next month's big shopping run, suggested from
+// Monthly shopping list ("Courses"): one list per month, written like a note
+// and ticked in the shop; past months are the history. Suggestions come from
 // the previous lists, receipts and corner-shop purchases.
 // Server side: server/src/routes/monthlyList.ts.
 import { api } from './api';
 
-export type Place = 'store' | 'market';
+export interface ListItem {
+    id: string;
+    month: string;
+    name: string;
+    quantity: number | null;
+    detail: string | null;
+    checked: boolean;
+    position: number;
+}
+
+export interface MonthList {
+    month: string;
+    items: ListItem[];
+    history: Array<{ month: string; count: number }>;
+}
+
 export type SuggestionStatus = 'due' | 'not_yet' | 'occasional' | 'planned' | 'in_list';
 
 export interface Suggestion {
@@ -11,39 +27,32 @@ export interface Suggestion {
     name: string;
     detail: string | null;
     quantity: number | null;
-    place: Place;
-    category: string;
     status: SuggestionStatus;
-    months: number;
-    total_months: number;
-    interval: number | null;
-    last: string | null;
-    corner: number;
 }
 
 export interface Suggestions {
     month: string;
-    store_label: string | null;
-    total_months: number;
-    history: Array<{ month: string; count: number }>;
     items: Suggestion[];
-}
-
-export interface ApplyItem {
-    name: string;
-    place: Place;
-    quantity?: number | null;
-    detail?: string | null;
-    category?: string;
 }
 
 type Ok<T> = { success: boolean; data: T };
 
+export const getMonth = async (month: string) =>
+    (await api.get<Ok<MonthList>>(`/api/monthly-list/month?month=${month}`)).data;
+
+/** One product per line; returns the whole list of the month. */
+export const addLines = async (month: string, text: string) =>
+    (await api.post<Ok<{ month: string; items: ListItem[] }>>('/api/monthly-list/items', { month, text })).data.items;
+
+export const updateItem = async (id: string, change: { checked?: boolean; text?: string }) =>
+    (await api.put<Ok<ListItem>>(`/api/monthly-list/items/${id}`, change)).data;
+
+export const deleteItem = async (id: string) => {
+    await api.delete<{ success: boolean }>(`/api/monthly-list/items/${id}`);
+};
+
 export const getSuggestions = async (month: string) =>
     (await api.get<Ok<Suggestions>>(`/api/monthly-list/suggestions?month=${month}`)).data;
-
-export const applyMonthlyList = async (month: string, items: ApplyItem[]) =>
-    (await api.post<Ok<{ added: number; skipped: number; market: number }>>('/api/monthly-list/apply', { month, items })).data;
 
 export const importLists = async (text: string, month?: string) =>
     (await api.post<Ok<{ months: Array<{ month: string; count: number }> }>>('/api/monthly-list/import', { text, month: month || undefined })).data;
@@ -52,8 +61,6 @@ export const deleteListMonth = async (month: string) => {
     await api.delete<{ success: boolean }>(`/api/monthly-list/history/${month}`);
 };
 
-/** The month being prepared: this one, or the next from the 20th on. */
-export const defaultListMonth = (today = new Date()): string => {
-    const d = new Date(today.getFullYear(), today.getMonth() + (today.getDate() >= 20 ? 1 : 0), 1);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-};
+/** A line as the family writes it: "Pâtes (penne) 2". */
+export const lineText = (item: { name: string; detail: string | null; quantity: number | null }) =>
+    `${item.name}${item.detail ? ` (${item.detail})` : ''}${item.quantity ? ` ${item.quantity}` : ''}`;
