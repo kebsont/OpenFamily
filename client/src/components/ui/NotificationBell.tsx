@@ -18,6 +18,7 @@ function notificationRoute(n: AppNotification): string {
     if (t.startsWith('recipe')) return '/recipes';
     if (t.startsWith('budget')) return '/budget';
     if (t.startsWith('schedule') || t.startsWith('planning')) return '/planning';
+    if (t.startsWith('post')) return '/posts';
     return '/';
 }
 

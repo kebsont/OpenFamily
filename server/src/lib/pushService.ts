@@ -23,14 +23,29 @@ export interface PushPayload {
     tag?: string;
 }
 
-export async function sendPushToUser(userId: string, payload: PushPayload): Promise<void> {
+/**
+ * Devices registered in a family scope (userId is the family owner id), except
+ * those of `exceptAccountId`: someone is not notified of their own action.
+ * Devices registered before accounts were recorded have no account and get
+ * everything, until the app re-registers them on its next start.
+ */
+export async function pushTargets(userId: string, exceptAccountId?: string | null) {
+    const { rows } = await query(
+        `SELECT endpoint, keys FROM push_subscriptions
+         WHERE user_id = $1 AND ($2::uuid IS NULL OR account_id IS DISTINCT FROM $2::uuid)`,
+        [userId, exceptAccountId ?? null]
+    );
+    return rows as Array<{ endpoint: string; keys: { auth: string; p256dh: string } }>;
+}
+
+export async function sendPushToUser(
+    userId: string,
+    payload: PushPayload,
+    options: { exceptAccountId?: string | null } = {}
+): Promise<void> {
     if (!vapidPublicKey || !vapidPrivateKey) return;
 
-    const { rows } = await query(
-        'SELECT endpoint, keys FROM push_subscriptions WHERE user_id = $1',
-        [userId]
-    );
-    const subs = rows as Array<{ endpoint: string; keys: { auth: string; p256dh: string } }>;
+    const subs = await pushTargets(userId, options.exceptAccountId);
 
     if (subs.length === 0) return;
 

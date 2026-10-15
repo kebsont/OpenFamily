@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { query } from '../db';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { broadcast } from '../lib/broadcaster';
+import { notifyActivity } from '../lib/activityNotifications';
 import { cleanContent, cleanImage, cleanLink } from '../lib/postFields';
 
 const router = Router();
@@ -214,10 +215,19 @@ router.post('/', async (req: AuthRequest, res) => {
             action: 'created',
         });
 
-        return res.json({
+        res.json({
             success: true,
             data: posts[0],
         });
+        void notifyActivity({
+            scopeId: req.userId,
+            actorId: req.actualUserId,
+            activity: 'post_created',
+            relatedId: id,
+            text: content ?? '',
+            kind: imageUrl ? 'photo' : linkUrl ? 'link' : undefined,
+        });
+        return;
     } catch (error) {
         if (error instanceof Error) {
             if (error.message === 'IMAGE_TOO_LARGE') {

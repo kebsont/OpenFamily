@@ -141,4 +141,15 @@ export const foyersMigrations: readonly Migration[] = [
             `CREATE INDEX idx_purchases_unpaid ON purchases(user_id) WHERE NOT paid`,
         ],
     },
+    {
+        // Family activity notifications (a new task, appointment, post...)
+        // reach the household's other members, never the person who acted:
+        // a device remembers which account subscribed it, a notification
+        // which account caused it. Rows from before stay addressed to all.
+        id: 'foyers/0008-activity-notifications',
+        statements: [
+            'ALTER TABLE push_subscriptions ADD COLUMN account_id UUID REFERENCES users(id) ON DELETE CASCADE',
+            'ALTER TABLE notifications ADD COLUMN actor_id UUID REFERENCES users(id) ON DELETE SET NULL',
+        ],
+    },
 ];

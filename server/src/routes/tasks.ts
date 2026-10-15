@@ -3,6 +3,7 @@ import { query } from '../db';
 import { authMiddleware, AuthRequest, isParentAccount, requireParent } from '../middleware/auth';
 import { toNullIfEmpty } from '../lib/normalize';
 import { broadcast } from '../lib/broadcaster';
+import { notifyActivity } from '../lib/activityNotifications';
 
 const router = Router();
 router.use(authMiddleware);
@@ -109,6 +110,14 @@ router.post('/', async (req: AuthRequest, res) => {
         const [enriched] = await enrichTasksWithMembers([result.rows[0]], req.userId!);
         broadcast(req.userId!, { type: 'update', entity: 'tasks', action: 'created' });
         res.json({ success: true, data: enriched });
+        void notifyActivity({
+            scopeId: req.userId!,
+            actorId: req.actualUserId!,
+            activity: 'task_created',
+            relatedId: result.rows[0].id,
+            text: result.rows[0].title,
+            when: result.rows[0].due_date ? { at: result.rows[0].due_date, withTime: false } : null,
+        });
     } catch (error) {
         if (error instanceof Error && error.message === 'INVALID_MEMBER') {
             return res.status(400).json({ success: false, error: 'Assigned member not found' });
@@ -183,6 +192,7 @@ router.put('/:id', async (req: AuthRequest, res) => {
         }
 
         let rewardsChanged = false;
+        let completedNow = false;
         // Award AFTER the UPDATE so the transactions' created_at is >= the new
         // completed_at — the reversal filter on un-complete relies on that order.
         let awardAfterUpdate: { points: number; assigned_to: string[] } | null = null;
@@ -199,6 +209,7 @@ router.put('/:id', async (req: AuthRequest, res) => {
             }
 
             if (isCompleted && !wasCompleted) {
+                completedNow = true;
                 // Completion transition (false → true) only — repeated PUTs with
                 // is_completed already true never award twice.
                 const effectivePoints = points !== undefined && isParent
@@ -268,6 +279,15 @@ router.put('/:id', async (req: AuthRequest, res) => {
             broadcast(req.userId!, { type: 'update', entity: 'rewards', action: 'updated' });
         }
         res.json({ success: true, data: enriched });
+        if (completedNow) {
+            void notifyActivity({
+                scopeId: req.userId!,
+                actorId: req.actualUserId!,
+                activity: 'task_completed',
+                relatedId: id,
+                text: result.rows[0].title,
+            });
+        }
     } catch (error) {
         if (error instanceof Error && error.message === 'INVALID_MEMBER') {
             return res.status(400).json({ success: false, error: 'Assigned member not found' });

@@ -3,6 +3,7 @@ import { query } from '../db';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { toNullIfEmpty } from '../lib/normalize';
 import { broadcast } from '../lib/broadcaster';
+import { notifyActivity } from '../lib/activityNotifications';
 import {
     RecurrenceFrequency,
     normalizeRecurrenceFrequency,
@@ -263,6 +264,14 @@ router.post('/', async (req: AuthRequest, res) => {
         const [enriched] = await enrichAppointmentsWithMembers([result.rows[0]], req.userId!);
         broadcast(req.userId!, { type: 'update', entity: 'appointments', action: 'created' });
         res.json({ success: true, data: enriched });
+        void notifyActivity({
+            scopeId: req.userId!,
+            actorId: req.actualUserId!,
+            activity: 'appointment_created',
+            relatedId: result.rows[0].id,
+            text: cleanedTitle,
+            when: { at: String(startTime), withTime: !is_all_day },
+        });
     } catch (error) {
         if (error instanceof Error && error.message === 'INVALID_MEMBER') {
             return res.status(400).json({ success: false, error: 'Family member not found' });

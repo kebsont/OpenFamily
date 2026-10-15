@@ -25,11 +25,12 @@ router.post('/subscribe', async (req: AuthRequest, res) => {
         return res.status(400).json({ success: false, error: 'Invalid subscription data' });
     }
 
+    // account_id: whose device it is, so it is not notified of its own actions.
     await query(
-        `INSERT INTO push_subscriptions (user_id, endpoint, keys)
-         VALUES ($1, $2, $3)
-         ON CONFLICT (user_id, endpoint) DO UPDATE SET keys = EXCLUDED.keys`,
-        [req.userId, endpoint, JSON.stringify({ auth: keys.auth, p256dh: keys.p256dh })]
+        `INSERT INTO push_subscriptions (user_id, endpoint, keys, account_id)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (user_id, endpoint) DO UPDATE SET keys = EXCLUDED.keys, account_id = EXCLUDED.account_id`,
+        [req.userId, endpoint, JSON.stringify({ auth: keys.auth, p256dh: keys.p256dh }), req.actualUserId]
     );
     // A phone used before by someone else (a family member who signed in on
     // it, then out) must not keep receiving that person's other households:
@@ -67,11 +68,15 @@ router.delete('/subscribe', async (req: AuthRequest, res) => {
     return res.json({ success: true });
 });
 
+// Notifications are shared by the household; those someone caused themselves
+// (a task they added) are not shown to them.
+const NOT_MINE = 'actor_id IS DISTINCT FROM $2::uuid';
+
 // GET / — list last 50 notifications for the user
 router.get('/', async (req: AuthRequest, res) => {
     const { rows } = await query(
-        'SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50',
-        [req.userId]
+        `SELECT * FROM notifications WHERE user_id = $1 AND ${NOT_MINE} ORDER BY created_at DESC LIMIT 50`,
+        [req.userId, req.actualUserId]
     );
     return res.json({ success: true, data: rows });
 });
@@ -79,8 +84,8 @@ router.get('/', async (req: AuthRequest, res) => {
 // GET /unread-count
 router.get('/unread-count', async (req: AuthRequest, res) => {
     const { rows } = await query(
-        'SELECT COUNT(*)::int AS count FROM notifications WHERE user_id = $1 AND is_read = false',
-        [req.userId]
+        `SELECT COUNT(*)::int AS count FROM notifications WHERE user_id = $1 AND is_read = false AND ${NOT_MINE}`,
+        [req.userId, req.actualUserId]
     );
     return res.json({ success: true, data: { count: rows[0]?.count ?? 0 } });
 });
@@ -88,8 +93,8 @@ router.get('/unread-count', async (req: AuthRequest, res) => {
 // PUT /read-all — mark all notifications as read
 router.put('/read-all', async (req: AuthRequest, res) => {
     await query(
-        'UPDATE notifications SET is_read = true WHERE user_id = $1 AND is_read = false',
-        [req.userId]
+        `UPDATE notifications SET is_read = true WHERE user_id = $1 AND is_read = false AND ${NOT_MINE}`,
+        [req.userId, req.actualUserId]
     );
     return res.json({ success: true });
 });

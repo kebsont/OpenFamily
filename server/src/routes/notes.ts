@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { query } from '../db';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { broadcast } from '../lib/broadcaster';
+import { notifyActivity } from '../lib/activityNotifications';
 
 const router = Router();
 router.use(authMiddleware);
@@ -78,6 +79,13 @@ router.post('/', async (req: AuthRequest, res) => {
 
         broadcast(req.userId!, { type: 'update', entity: 'notes', action: 'created' });
         res.json({ success: true, data: result.rows[0] });
+        void notifyActivity({
+            scopeId: req.userId!,
+            actorId: req.actualUserId!,
+            activity: 'note_created',
+            relatedId: result.rows[0].id,
+            text: cleanedContent,
+        });
     } catch (error) {
         console.error('Create note error:', error);
         res.status(500).json({ success: false, error: 'Internal server error' });

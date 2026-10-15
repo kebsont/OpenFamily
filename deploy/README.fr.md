@@ -83,10 +83,12 @@ L'appli porte le nom choisi à l'installation, sous l'icône et sur l'icône ell
 
 Sur chaque téléphone :
 
-- **Paramètres → Notifications** : active les rappels.
+- **Paramètres → Notifications** : active les notifications.
 - **Paramètres → Devise** : choisis **Franc CFA**.
 
-Pour recevoir aussi les rappels des autres foyers, ouvre chacun une fois depuis le menu du haut après avoir activé les notifications.
+Les notifications préviennent les autres membres du foyer quand quelqu'un ajoute une tâche, un rendez-vous, une publication ou un mot de la famille, ou termine une tâche, en plus des rappels de rendez-vous. Personne n'est prévenu de ce qu'il a fait lui-même. Le texte reprend seulement ce qui a été écrit (« Nouvelle tâche · Acheter du gaz · sam. 17 oct. ») : ni nom de foyer, ni nom de personne. Les courses, les repas et les achats ne notifient pas, pour ne pas sonner à chaque ligne.
+
+Pour recevoir aussi les notifications des autres foyers, ouvre chacun une fois depuis le menu du haut après avoir activé les notifications.
 
 Sur ton téléphone, les notifications de tous tes foyers s'affichent sur l'écran verrouillé. Pour n'y montrer que le nom de l'appli :
 
@@ -200,6 +202,7 @@ sudo ./deploy/compose.sh start server
 | Courses du mois | Une liste par mois écrite comme une note, cochée au magasin, avec l'historique des mois précédents et les produits habituels en un appui. |
 | Repas d'aujourd'hui et de demain sur l'accueil | Ce qui est prévu à manger se voit sans ouvrir le planning des repas. Un repas qui ne s'enregistre pas affiche maintenant la raison dans la fenêtre d'ajout. |
 | Carnet de la boutique | Les petits achats du quotidien, payés ou à crédit, avec ce qui reste dû à la boutique et qui a fait l'achat. |
+| Notifications de la famille | Une tâche, un rendez-vous, une publication ou un mot ajouté, une tâche terminée : les autres membres du foyer sont prévenus, jamais la personne qui l'a fait. |
 | Bandeau d'installation sur iPhone, nom de l'appli au choix | Sur iPhone, l'appli doit être ajoutée à l'écran d'accueil pour s'ouvrir en plein écran et recevoir les notifications. |
 | Menu « Achats » | Tickets de caisse lus par l'IA, recharges Woyofal, petites dépenses, et comparaison d'un mois à l'autre. Tout s'ajoute aussi au budget. |
 | Franc CFA dans les devises | — |
