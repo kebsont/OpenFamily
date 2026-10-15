@@ -51,7 +51,6 @@ step "Pare-feu"
 ufw allow OpenSSH >/dev/null
 ufw allow 80/tcp >/dev/null
 ufw allow 443/tcp >/dev/null
-ufw allow 443/udp >/dev/null
 ufw --force enable >/dev/null
 ok "Seuls SSH (22), HTTP (80) et HTTPS (443) sont ouverts"
 

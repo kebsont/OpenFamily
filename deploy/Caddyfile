@@ -1,5 +1,12 @@
 {
 	email {$ACME_EMAIL}
+	servers {
+		# HTTP/1.1 et HTTP/2 (TCP) seulement. Sur iPhone (iOS 26), HTTP/3 (QUIC)
+		# et sa reprise de session « 0-RTT » ont des ratés connus : une requête
+		# envoyée après une pause peut échouer avant d'atteindre l'appli. Pour
+		# une appli familiale, HTTP/2 est tout aussi rapide.
+		protocols h1 h2
+	}
 }
 
 {$DOMAIN} {
