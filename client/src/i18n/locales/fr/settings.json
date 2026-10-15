@@ -56,7 +56,7 @@
   },
   "import": {
     "title": "Importer des données",
-    "subtitle": "Restaure un export portable OpenFamily. Les données existantes sont conservées et les doublons ignorés ; les préférences familiales du fichier sont restaurées.",
+    "subtitle": "Restaure un export de l'appli. Les données existantes sont conservées et les doublons ignorés ; les préférences familiales du fichier sont restaurées.",
     "success": "Import réussi",
     "itemsImported_one": "élément importé",
     "itemsImported_other": "éléments importés",

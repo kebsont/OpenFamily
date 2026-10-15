@@ -121,7 +121,7 @@
   "external": {
     "button": "Agendas externes",
     "title": "Agendas externes",
-    "description": "Suivez Google Agenda, Outlook ou tout autre agenda, importez un fichier .ics, ou partagez celui d'OpenFamily.",
+    "description": "Suivez Google Agenda, Outlook ou tout autre agenda, importez un fichier .ics, ou partagez celui de l'appli.",
     "followTitle": "Agendas suivis",
     "followDescription": "Leurs événements apparaissent dans le calendrier et se mettent à jour toutes les 30 minutes.",
     "none": "Aucun agenda suivi pour l'instant.",
@@ -132,7 +132,7 @@
     "whereOutlook": "Outlook.com : Paramètres, Calendrier, Calendriers partagés, « Publier un calendrier », puis copiez le lien ICS.",
     "whereApple": "Apple Calendrier (iCloud) : partagez l'agenda en « Calendrier public » et copiez le lien webcal://.",
     "whereOther": "Ailleurs (école, club, Proton…) : cherchez un lien « iCal », « ICS » ou « webcal ».",
-    "privacy": "Cette adresse donne accès à l'agenda : OpenFamily la garde chiffrée et ne l'affiche plus après l'ajout.",
+    "privacy": "Cette adresse donne accès à l'agenda : l'appli la garde chiffrée et ne l'affiche plus après l'ajout.",
     "nameLabel": "Nom",
     "namePlaceholder": "Le nom de l'agenda si vide",
     "colorLabel": "Couleur",

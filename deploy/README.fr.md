@@ -79,7 +79,7 @@ Rien dans l'appli ne montre aux membres d'un foyer que tu en as d'autres : le me
   Tu peux aussi installer l'APK OpenFamily : à l'ouverture, saisis l'adresse `https://maison.ton-domaine.com`.
 - **iPhone :** ouvre l'adresse dans Safari, puis **Partager → Sur l'écran d'accueil**. Un bandeau le rappelle tant que l'appli n'est pas installée. Sur iPhone, les notifications ne marchent que dans l'appli ouverte depuis son icône (iOS 16.4 ou plus récent).
 
-Sous l'icône, l'appli porte le nom choisi à l'installation. Pour le changer : ligne `APP_NAME` du fichier `.env`, puis `sudo ./deploy/compose.sh up -d --build client`. Les téléphones déjà installés gardent l'ancien nom jusqu'à ce qu'on réinstalle l'icône.
+L'appli porte le nom choisi à l'installation, sous l'icône et sur l'icône elle-même. Pour le changer : ligne `APP_NAME` du fichier `.env`, puis `sudo ./deploy/compose.sh up -d --build client`. Les téléphones déjà installés gardent l'ancienne icône jusqu'à ce qu'on la retire de l'écran d'accueil et qu'on l'ajoute à nouveau.
 
 Sur chaque téléphone :
 

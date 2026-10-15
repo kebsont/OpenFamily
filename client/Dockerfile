@@ -41,6 +41,14 @@ ENV VITE_REGISTRATION_ENABLED=$VITE_REGISTRATION_ENABLED
 # Name under the home-screen icon once installed (foyers fork); empty = OpenFamily.
 ARG VITE_APP_NAME=
 ENV VITE_APP_NAME=$VITE_APP_NAME
+# With another name, the icons show it too instead of "OpenFamily". Best
+# effort: if the image tools cannot be installed, the default icons stay.
+RUN if [ -n "$VITE_APP_NAME" ] && [ "$VITE_APP_NAME" != "OpenFamily" ]; then \
+        { apk add --no-cache python3 py3-pillow font-dejavu >/dev/null \
+          && { apk add --no-cache font-inter >/dev/null 2>&1 || true; } \
+          && python3 client/scripts/brand-icons.py "$VITE_APP_NAME" client/public; } \
+        || echo "brand-icons: default icons kept"; \
+    fi
 RUN cd client && npm run build
 
 # Production stage

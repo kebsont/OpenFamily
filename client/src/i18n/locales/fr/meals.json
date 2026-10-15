@@ -50,7 +50,7 @@
     "empty": "Aucun repas n'est planifié dans Tandoor pour cette semaine.",
     "error": "Impossible de lire le planning Tandoor.",
     "mappingTitle": "Correspondance des repas",
-    "mappingHelp": "Choisissez à quel repas d'OpenFamily correspond chaque type de repas Tandoor.",
+    "mappingHelp": "Choisissez à quel repas de l'appli correspond chaque type de repas Tandoor.",
     "skipType": "Ne pas importer",
     "previewTitle": "Aperçu",
     "replaces": "remplacera « {{name}} »",
