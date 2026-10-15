@@ -59,7 +59,8 @@
       "agenda": "Agenda (appointments)",
       "planning": "This week's schedules",
       "quick": "Quick access (shopping, budget, tasks)",
-      "notes": "Family notes"
+      "notes": "Family notes",
+      "meals": "Meals"
     }
   },
   "latestPost": {
@@ -69,5 +70,14 @@
     "notSeen": "Not seen by anyone yet",
     "seen": "Seen",
     "markSeen": "Mark seen"
+  },
+  "meals": {
+    "title": "Meals",
+    "viewAll": "Whole week",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "empty": "No meal planned for today or tomorrow.",
+    "none": "Nothing planned.",
+    "plan": "Plan a meal"
   }
 }

@@ -7,7 +7,7 @@ import { formatCurrency } from '../lib/utils';
 import { intlLocale, dateLocale, isoWeekdayAtOffset, weekStartsOn } from '../i18n/format';
 import {
     ShoppingCart, CheckSquare, Calendar, Wallet, AlertCircle, ChevronRight, Clock,
-    SlidersHorizontal, Eye, EyeOff, ArrowUp, ArrowDown, CalendarDays,
+    SlidersHorizontal, Eye, EyeOff, ArrowUp, ArrowDown, CalendarDays, UtensilsCrossed, Plus,
 } from 'lucide-react';
 import { addDays, format, isSameDay, startOfWeek } from 'date-fns';
 import { Button } from '../components/ui/Button';
@@ -44,6 +44,18 @@ interface PlanningEntry {
     location?: string;
 }
 
+interface MealPlan {
+    id: string;
+    date: string;
+    meal_type: string;
+    custom_meal?: string | null;
+    notes?: string | null;
+    recipe?: { id: string; name: string } | null;
+}
+
+// Same slots, same order as the meal planning page.
+const MEAL_TYPES = ['Petit-déjeuner', 'Déjeuner', 'Dîner', 'Snack'];
+
 interface LatestFamilyPost {
     id: string;
     author_name: string;
@@ -61,12 +73,13 @@ interface LatestFamilyPost {
 }
 
 const Dashboard: React.FC = () => {
-    const { t } = useTranslation(['dashboard', 'common', 'notes']);
+    const { t } = useTranslation(['dashboard', 'common', 'notes', 'meals']);
     const { user, isModuleEnabled, dashboardPrefs, updateDashboardPrefs } = useAuth();
     const currency = user?.currency || 'EUR';
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [planning, setPlanning] = useState<PlanningEntry[]>([]);
+    const [meals, setMeals] = useState<MealPlan[]>([]);
     const [notes, setNotes] = useState<FamilyNote[]>([]);
     const [latestPost, setLatestPost] = useState<LatestFamilyPost | null>(null);
     const [loading, setLoading] = useState(true);
@@ -90,6 +103,7 @@ const Dashboard: React.FC = () => {
     useWebSocketUpdates('appointments', () => { void loadAll(); });
     useWebSocketUpdates('budget', () => { void loadAll(); });
     useWebSocketUpdates('planning', () => { void loadPlanning(); });
+    useWebSocketUpdates('meal-plans', () => { void loadMeals(); });
     useWebSocketUpdates('notes', () => { void loadNotes(); });
     useWebSocketUpdates('posts', () => { void loadLatestPost(); });
 
@@ -129,9 +143,25 @@ const Dashboard: React.FC = () => {
         }
     };
 
+    // Today's and tomorrow's meals, as planned on the meal planning page.
+    const loadMeals = async () => {
+        if (!isModuleEnabled('meals')) return;
+        try {
+            const from = format(new Date(), 'yyyy-MM-dd');
+            const to = format(addDays(new Date(), 1), 'yyyy-MM-dd');
+            const res = await api.get<{ success: boolean; data: MealPlan[] }>(
+                `/api/meal-plans?start_date=${from}&end_date=${to}`
+            );
+            if (res.success) setMeals(res.data);
+        } catch (e) {
+            console.error('Meals load error:', e);
+        }
+    };
+
     const loadAll = async () => {
         try {
             void loadNotes();
+            void loadMeals();
             void loadLatestPost();
             void loadPlanning();
             const [statsRes, apptRes] = await Promise.all([
@@ -449,6 +479,77 @@ const Dashboard: React.FC = () => {
         );
     };
 
+    // What is planned to eat today and tomorrow, straight on the home page.
+    const renderMeals = () => {
+        const days = [new Date(), addDays(new Date(), 1)].map((date, i) => {
+            const key = format(date, 'yyyy-MM-dd');
+            return {
+                key,
+                label: i === 0 ? t('dashboard:meals.today') : t('dashboard:meals.tomorrow'),
+                items: meals
+                    .filter((meal) => meal.date === key && (meal.recipe?.name || meal.custom_meal))
+                    .sort((a, b) => MEAL_TYPES.indexOf(a.meal_type) - MEAL_TYPES.indexOf(b.meal_type)),
+            };
+        });
+        const nothing = days.every((day) => day.items.length === 0);
+
+        return (
+            <section key="meals">
+                <div className="flex items-baseline justify-between mb-4">
+                    <h2 className="font-serif text-h2">{t('dashboard:meals.title')}</h2>
+                    <button
+                        type="button"
+                        onClick={() => navigate('/meal-planning')}
+                        className="text-caption text-primary hover:underline underline-offset-4 flex items-center gap-1"
+                    >
+                        {t('dashboard:meals.viewAll')} <ChevronRight className="w-3 h-3" />
+                    </button>
+                </div>
+
+                {nothing ? (
+                    <div className="rounded-card border border-dashed border-border-strong p-6 text-center">
+                        <p className="text-caption text-muted-foreground">{t('dashboard:meals.empty')}</p>
+                        <button
+                            type="button"
+                            onClick={() => navigate('/meal-planning')}
+                            className="mt-3 inline-flex items-center gap-1 text-caption text-primary font-medium hover:underline underline-offset-4"
+                        >
+                            <Plus className="h-3.5 w-3.5" /> {t('dashboard:meals.plan')}
+                        </button>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {days.map((day) => (
+                            <div key={day.key} className="rounded-card border border-border bg-card p-4">
+                                <p className="text-micro uppercase tracking-[0.08em] text-muted-foreground mb-3">{day.label}</p>
+                                {day.items.length === 0 ? (
+                                    <p className="text-caption text-muted-foreground">{t('dashboard:meals.none')}</p>
+                                ) : (
+                                    <ul className="space-y-2.5">
+                                        {day.items.map((meal) => (
+                                            <li key={meal.id} className="flex items-start gap-2.5">
+                                                <UtensilsCrossed className="mt-0.5 h-4 w-4 flex-none text-muted-foreground" />
+                                                <div className="min-w-0">
+                                                    <p className="text-caption font-medium text-foreground break-words">
+                                                        {meal.recipe?.name || meal.custom_meal}
+                                                    </p>
+                                                    <p className="text-micro text-muted-foreground break-words">
+                                                        {t(`meals:mealTypes.${meal.meal_type}`, { defaultValue: meal.meal_type })}
+                                                        {meal.notes ? ` · ${meal.notes}` : ''}
+                                                    </p>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </section>
+        );
+    };
+
     const markLatestPostSeen = async () => {
         if (!latestPost || latestPost.is_seen) return;
 
@@ -614,12 +715,14 @@ const Dashboard: React.FC = () => {
         if (prefs.hidden.includes(key)) return false;
         if (key === 'notes') return isModuleEnabled('notes');
         if (key === 'planning') return isModuleEnabled('planning');
+        if (key === 'meals') return isModuleEnabled('meals');
         return true;
     };
 
     const widgetLabels: Record<DashboardWidget, string> = {
         stats: t('dashboard:customize.widgets.stats'),
         agenda: t('dashboard:customize.widgets.agenda'),
+        meals: t('dashboard:customize.widgets.meals'),
         planning: t('dashboard:customize.widgets.planning'),
         quick: t('dashboard:customize.widgets.quick'),
         notes: t('dashboard:customize.widgets.notes'),
@@ -629,6 +732,7 @@ const Dashboard: React.FC = () => {
         switch (key) {
             case 'stats': return renderStats();
             case 'agenda': return renderAgenda();
+            case 'meals': return renderMeals();
             case 'planning': return renderPlanning();
             case 'quick': return renderQuickAccess();
             case 'notes': return renderNotes();
@@ -751,7 +855,8 @@ const Dashboard: React.FC = () => {
                                 const hidden = prefs.hidden.includes(key);
                                 const unavailable =
                                     (key === 'notes' && !isModuleEnabled('notes')) ||
-                                    (key === 'planning' && !isModuleEnabled('planning'));
+                                    (key === 'planning' && !isModuleEnabled('planning')) ||
+                                    (key === 'meals' && !isModuleEnabled('meals'));
                                 return (
                                     <li
                                         key={key}

@@ -59,7 +59,8 @@
       "agenda": "Agenda (rendez-vous)",
       "planning": "Plannings de la semaine",
       "quick": "Accès rapides (courses, budget, tâches)",
-      "notes": "Mots de la famille"
+      "notes": "Mots de la famille",
+      "meals": "Repas"
     }
   },
   "latestPost": {
@@ -69,5 +70,14 @@
     "notSeen": "Pas encore vu",
     "seen": "Vu",
     "markSeen": "Marquer comme vu"
+  },
+  "meals": {
+    "title": "Repas",
+    "viewAll": "Toute la semaine",
+    "today": "Aujourd'hui",
+    "tomorrow": "Demain",
+    "empty": "Aucun repas prévu pour aujourd'hui ni demain.",
+    "none": "Rien de prévu.",
+    "plan": "Prévoir un repas"
   }
 }

@@ -197,6 +197,7 @@ sudo ./deploy/compose.sh start server
 | Le foyer d'une session est relu en base à chaque requête | Avant, un membre retiré d'une famille gardait l'accès à ses données jusqu'à 7 jours, le temps que sa session expire. |
 | Synchro en temps réel pour les membres | Avant, seul le propriétaire voyait les changements des autres sans recharger la page. |
 | Courses du mois | Une liste par mois écrite comme une note, cochée au magasin, avec l'historique des mois précédents et les produits habituels en un appui. |
+| Repas d'aujourd'hui et de demain sur l'accueil | Ce qui est prévu à manger se voit sans ouvrir le planning des repas. Un repas qui ne s'enregistre pas affiche maintenant la raison dans la fenêtre d'ajout. |
 | Carnet de la boutique | Les petits achats du quotidien, payés ou à crédit, avec ce qui reste dû à la boutique et qui a fait l'achat. |
 | Bandeau d'installation sur iPhone, nom de l'appli au choix | Sur iPhone, l'appli doit être ajoutée à l'écran d'accueil pour s'ouvrir en plein écran et recevoir les notifications. |
 | Menu « Achats » | Tickets de caisse lus par l'IA, recharges Woyofal, petites dépenses, et comparaison d'un mois à l'autre. Tout s'ajoute aussi au budget. |

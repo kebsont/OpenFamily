@@ -71,6 +71,12 @@
     "loadPlans": "No se puede cargar el planificador.",
     "loadRecipes": "No se pueden cargar las recetas.",
     "save": "No se puede guardar esta comida.",
-    "delete": "No se puede eliminar esta comida."
+    "delete": "No se puede eliminar esta comida.",
+    "emptyMeal": "Elige una receta o escribe la comida.",
+    "offline": "Sin conexión: la comida no se ha guardado. Inténtalo de nuevo."
+  },
+  "saved": {
+    "added": "Comida añadida",
+    "updated": "Comida modificada"
   }
 }

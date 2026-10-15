@@ -21,7 +21,7 @@ interface User {
 }
 
 /** Dashboard widgets, in default display order (mirrors the server's list). */
-export const DASHBOARD_WIDGETS = ['stats', 'agenda', 'planning', 'quick', 'notes'] as const;
+export const DASHBOARD_WIDGETS = ['stats', 'agenda', 'meals', 'planning', 'quick', 'notes'] as const;
 export type DashboardWidget = typeof DASHBOARD_WIDGETS[number];
 
 export interface DashboardPrefs {

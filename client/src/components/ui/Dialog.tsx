@@ -48,7 +48,9 @@ export const Dialog: React.FC<DialogProps> = ({
                             <span className="sr-only">Fermer</span>
                         </DialogPrimitive.Close>
                     </div>
-                    <div className="px-5 py-4 md:px-6 md:py-5">{children}</div>
+                    {/* As a bottom sheet on a phone, the last buttons stay clear of the
+                        iPhone home bar, where a tap may not register. */}
+                    <div className="px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:px-6 md:py-5">{children}</div>
                 </DialogPrimitive.Content>
             </DialogPrimitive.Portal>
         </DialogPrimitive.Root>

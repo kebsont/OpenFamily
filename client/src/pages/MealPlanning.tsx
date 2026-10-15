@@ -85,6 +85,10 @@ const MealPlanning: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedMealType, setSelectedMealType] = useState<string>('');
     const [error, setError] = useState('');
+    // Errors of the add/edit dialog are shown in the dialog itself: on the page
+    // behind it, nobody saw why "Ajouter" did nothing.
+    const [dialogError, setDialogError] = useState('');
+    const [saving, setSaving] = useState(false);
     const { showToast } = useToast();
     const [shoppingDialogOpen, setShoppingDialogOpen] = useState(false);
     const [ingredientLines, setIngredientLines] = useState<IngredientLine[]>([]);
@@ -161,8 +165,14 @@ const MealPlanning: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedDate) return;
-        setError('');
+        if (!selectedDate || saving) return;
+        if (!formData.recipe_id && !formData.custom_meal.trim()) {
+            setDialogError(t('meals:errors.emptyMeal'));
+            return;
+        }
+        setDialogError('');
+        setSaving(true);
+        const wasEditing = Boolean(editingMeal);
 
         try {
             const payload = {
@@ -180,10 +190,20 @@ const MealPlanning: React.FC = () => {
             }
             setDialogOpen(false);
             resetForm();
-            loadMealPlans();
+            void loadMealPlans();
+            showToast({ title: wasEditing ? t('meals:saved.updated') : t('meals:saved.added') });
         } catch (error) {
             console.error('Failed to save meal plan:', error);
-            setError(error instanceof Error ? error.message : t('meals:errors.save'));
+            // A fetch that never reached the server throws a TypeError ("Load
+            // failed" on iPhone); anything else is the server's answer, kept in
+            // brackets so a screenshot says what went wrong.
+            setDialogError(
+                error instanceof TypeError
+                    ? t('meals:errors.offline')
+                    : `${t('meals:errors.save')}${error instanceof Error && error.message ? ` (${error.message})` : ''}`
+            );
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -210,6 +230,7 @@ const MealPlanning: React.FC = () => {
             notes: meal.notes || '',
         });
         setRecipeQuery('');
+        setDialogError('');
         setDialogOpen(true);
     };
 
@@ -224,7 +245,7 @@ const MealPlanning: React.FC = () => {
             notes: '',
         });
         setRecipeQuery('');
-        setError('');
+        setDialogError('');
         setDialogOpen(true);
     };
 
@@ -232,7 +253,7 @@ const MealPlanning: React.FC = () => {
         setEditingMeal(null);
         setSelectedDate(null);
         setSelectedMealType('');
-        setError('');
+        setDialogError('');
         setFormData({
             meal_type: 'Déjeuner',
             recipe_id: '',
@@ -791,7 +812,10 @@ const MealPlanning: React.FC = () => {
                         <Input
                             label={t('meals:form.customMeal')}
                             value={formData.custom_meal}
-                            onChange={(e) => setFormData({ ...formData, custom_meal: e.target.value })}
+                            onChange={(e) => {
+                                setFormData({ ...formData, custom_meal: e.target.value });
+                                setDialogError('');
+                            }}
                             placeholder={t('meals:form.customMealPlaceholder')}
                         />
                     )}
@@ -802,11 +826,19 @@ const MealPlanning: React.FC = () => {
                         placeholder={t('meals:form.notesPlaceholder')}
                         rows={2}
                     />
+                    {dialogError && (
+                        <p role="alert" className="rounded-input border border-danger/30 bg-danger/10 px-3 py-2 text-caption text-danger">
+                            {dialogError}
+                        </p>
+                    )}
                     <div className="flex justify-end gap-3 pt-4">
                         <Button type="button" variant="secondary" onClick={() => setDialogOpen(false)}>
                             {t('common:actions.cancel')}
                         </Button>
-                        <Button type="submit">{editingMeal ? t('common:actions.save') : t('common:actions.add')}</Button>
+                        <Button type="submit" disabled={saving}>
+                            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {editingMeal ? t('common:actions.save') : t('common:actions.add')}
+                        </Button>
                     </div>
                 </form>
             </Dialog>

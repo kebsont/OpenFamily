@@ -59,7 +59,8 @@
       "agenda": "Agenda (compromissos)",
       "planning": "Planejamentos da semana",
       "quick": "Acesso rápido (compras, orçamento, tarefas)",
-      "notes": "Recados da família"
+      "notes": "Recados da família",
+      "meals": "Refeições"
     }
   },
   "latestPost": {
@@ -69,5 +70,14 @@
     "notSeen": "Ninguém viu ainda",
     "seen": "Visto",
     "markSeen": "Marcar como visto"
+  },
+  "meals": {
+    "title": "Refeições",
+    "viewAll": "Semana inteira",
+    "today": "Hoje",
+    "tomorrow": "Amanhã",
+    "empty": "Nenhuma refeição prevista para hoje nem amanhã.",
+    "none": "Nada previsto.",
+    "plan": "Planejar uma refeição"
   }
 }

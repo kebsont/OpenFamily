@@ -71,6 +71,12 @@
     "loadPlans": "Não foi possível carregar o planejamento de refeições.",
     "loadRecipes": "Não foi possível carregar as receitas.",
     "save": "Não foi possível salvar esta refeição.",
-    "delete": "Não foi possível excluir esta refeição."
+    "delete": "Não foi possível excluir esta refeição.",
+    "emptyMeal": "Escolha uma receita ou escreva a refeição.",
+    "offline": "Sem conexão: a refeição não foi salva. Tente de novo."
+  },
+  "saved": {
+    "added": "Refeição adicionada",
+    "updated": "Refeição alterada"
   }
 }

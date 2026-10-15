@@ -71,6 +71,12 @@
     "loadPlans": "Impossible de charger le planning.",
     "loadRecipes": "Impossible de charger les recettes.",
     "save": "Impossible d'enregistrer ce repas.",
-    "delete": "Impossible de supprimer ce repas."
+    "delete": "Impossible de supprimer ce repas.",
+    "emptyMeal": "Choisissez une recette ou écrivez le repas.",
+    "offline": "Pas de connexion : le repas n'est pas enregistré. Réessayez."
+  },
+  "saved": {
+    "added": "Repas ajouté",
+    "updated": "Repas modifié"
   }
 }

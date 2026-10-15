@@ -22,8 +22,9 @@ export const TOGGLEABLE_MODULES = [
 ] as const;
 
 // Dashboard widgets, in default display order. 'quick' is the shopping/budget/
-// tasks quick-access card row; 'agenda' carries the day/week toggle.
-export const DASHBOARD_WIDGETS = ['stats', 'agenda', 'planning', 'quick', 'notes'] as const;
+// tasks quick-access card row; 'agenda' carries the day/week toggle; 'meals'
+// shows what is planned to eat today and tomorrow.
+export const DASHBOARD_WIDGETS = ['stats', 'agenda', 'meals', 'planning', 'quick', 'notes'] as const;
 export type DashboardWidget = typeof DASHBOARD_WIDGETS[number];
 
 export interface DashboardPrefs {
@@ -48,7 +49,13 @@ export const parseDashboardPrefs = (raw: unknown): DashboardPrefs => {
         const order = Array.isArray(parsed.order) ? parsed.order.filter(isWidget) : [];
         const dedupedOrder = Array.from(new Set(order));
         for (const widget of DASHBOARD_WIDGETS) {
-            if (!dedupedOrder.includes(widget)) dedupedOrder.push(widget);
+            if (dedupedOrder.includes(widget)) continue;
+            // A widget added in a later version goes where it sits by default,
+            // after the closest widget that precedes it, not at the very bottom.
+            const before = DASHBOARD_WIDGETS.slice(0, DASHBOARD_WIDGETS.indexOf(widget))
+                .reverse()
+                .find((w) => dedupedOrder.includes(w));
+            dedupedOrder.splice(before ? dedupedOrder.indexOf(before) + 1 : 0, 0, widget);
         }
 
         const hidden = Array.isArray(parsed.hidden)

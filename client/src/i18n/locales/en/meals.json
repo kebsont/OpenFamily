@@ -71,6 +71,12 @@
     "loadPlans": "Unable to load the planner.",
     "loadRecipes": "Unable to load recipes.",
     "save": "Unable to save this meal.",
-    "delete": "Unable to delete this meal."
+    "delete": "Unable to delete this meal.",
+    "emptyMeal": "Pick a recipe or type the meal.",
+    "offline": "No connection: the meal was not saved. Try again."
+  },
+  "saved": {
+    "added": "Meal added",
+    "updated": "Meal updated"
   }
 }

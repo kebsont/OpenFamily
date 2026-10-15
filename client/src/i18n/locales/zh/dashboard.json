@@ -59,7 +59,8 @@
       "agenda": "日程（约会）",
       "planning": "本周日程",
       "quick": "快捷入口（购物、预算、任务）",
-      "notes": "家庭留言"
+      "notes": "家庭留言",
+      "meals": "餐食"
     }
   },
   "latestPost": {
@@ -69,5 +70,14 @@
     "notSeen": "尚无人查看",
     "seen": "已查看",
     "markSeen": "标记为已查看"
+  },
+  "meals": {
+    "title": "餐食",
+    "viewAll": "整周",
+    "today": "今天",
+    "tomorrow": "明天",
+    "empty": "今天和明天都还没有安排餐食。",
+    "none": "暂无安排。",
+    "plan": "安排一餐"
   }
 }
