@@ -24,4 +24,9 @@ fi
 echo "→ Reconstruction ($before → $after)"
 "${COMPOSE[@]}" build
 "${COMPOSE[@]}" up -d
+# Caddy ne relit son fichier qu'au démarrage : on le recharge s'il a changé.
+if ! git diff --quiet "$before" "$after" -- deploy/Caddyfile; then
+    "${COMPOSE[@]}" exec -T caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile \
+        || "${COMPOSE[@]}" restart caddy
+fi
 echo "✓ Mis à jour. En cas de problème : git checkout $before && ./deploy/compose.sh up -d --build"

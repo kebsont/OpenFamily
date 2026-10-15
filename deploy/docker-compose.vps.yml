@@ -15,15 +15,26 @@
 # les mises à jour du projet s'appliquent donc sans retoucher ce fichier.
 # Nécessite Docker Compose 2.24 ou plus récent (balise !reset).
 
+# Journaux Docker limités à 3 × 10 Mo par service : sans limite, ils
+# grossissent indéfiniment sur le disque du VPS.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   postgres:
     ports: !reset []
+    logging: *logging
 
   server:
     ports: !reset []
+    logging: *logging
 
   client:
     ports: !reset []
+    logging: *logging
     build:
       args:
         # Nom affiché sous l'icône de l'appli installée (APP_NAME dans .env).
@@ -38,6 +49,7 @@ services:
     image: caddy:2-alpine
     container_name: openfamily-caddy
     restart: unless-stopped
+    logging: *logging
     ports:
       - "80:80"
       - "443:443"
@@ -56,6 +68,7 @@ services:
     image: postgres:16-alpine
     container_name: openfamily-backup
     restart: unless-stopped
+    logging: *logging
     environment:
       PGHOST: postgres
       PGDATABASE: ${POSTGRES_DB:-openfamily}

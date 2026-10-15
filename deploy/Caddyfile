@@ -4,6 +4,13 @@
 
 {$DOMAIN} {
 	encode zstd gzip
+	# Une ligne par requête (./deploy/compose.sh logs caddy) : montre si une
+	# requête est bien arrivée jusqu'au VPS, et ce que Caddy a répondu. Les
+	# en-têtes de connexion (Authorization, cookies) sont masqués par Caddy.
+	log {
+		output stdout
+		format json
+	}
 	# L'appli (nginx) relaie elle-même /api et /ws vers le serveur.
 	reverse_proxy client:80
 }
