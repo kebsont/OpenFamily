@@ -22,6 +22,7 @@ import { broadcast } from '../lib/broadcaster';
 import { getFamilyCategories } from './categories';
 import {
     displayName, guessAisle, isDailyFresh, listNameKey, looksLikeMarket, MARKET_CATEGORY, parseLine, parseLists, productKey,
+    type ListLine,
 } from '../lib/products';
 
 const router = Router();
@@ -344,8 +345,8 @@ router.post('/items', requireParent, async (req: AuthRequest, res) => {
     try {
         const month = readMonth(req.body?.month);
         if (!month) return res.status(400).json({ success: false, error: 'invalid_month' });
-        const raw = typeof req.body?.text === 'string' ? req.body.text.slice(0, MAX_TEXT) : '';
-        const lines = raw.split(/\r?\n/).map(parseLine).filter((l): l is NonNullable<typeof l> => l !== null).slice(0, MAX_LINES);
+        const raw: string = typeof req.body?.text === 'string' ? req.body.text.slice(0, MAX_TEXT) : '';
+        const lines = raw.split(/\r?\n/).map((line) => parseLine(line)).filter((l): l is ListLine => l !== null).slice(0, MAX_LINES);
         if (lines.length === 0) return res.status(400).json({ success: false, error: 'no_items' });
 
         const client = await getClient();
