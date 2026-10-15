@@ -1,0 +1,44 @@
+{
+  "tabs": {
+    "month": "This month's shopping",
+    "boutique": "Corner shop"
+  },
+  "owed": {
+    "title": "Owed to the corner shop",
+    "detail_one": "{{count}} purchase on credit, since {{since}}",
+    "detail_other": "{{count}} purchases on credit, since {{since}}",
+    "settle": "It's settled",
+    "confirm": "Is everything paid at the shop?",
+    "yes": "Yes, all paid",
+    "no": "No"
+  },
+  "settled": "Settled: {{amount}}.",
+  "fields": {
+    "what": "What?",
+    "whatPlaceholder": "Bread, pepper, charcoal, needle…",
+    "price": "Price",
+    "date": "Day",
+    "payment": "Payment",
+    "paid": "Paid",
+    "credit": "On credit",
+    "boughtBy": "Bought by",
+    "me": "Me",
+    "maid": "The maid"
+  },
+  "me": "Me",
+  "add": "Add",
+  "added": "Added: {{what}}",
+  "monthTotal": "Corner shop this month:",
+  "empty": "Nothing from the corner shop this month.",
+  "paid": "Paid",
+  "credit": "On credit",
+  "markPaid": "{{what}}: mark as paid",
+  "markCredit": "{{what}}: back on credit",
+  "remove": "Delete {{what}}",
+  "deleteConfirm": "Delete \"{{what}}\" ({{amount}})?",
+  "errors": {
+    "load": "Could not load the corner shop.",
+    "save": "Not saved. Check the connection.",
+    "price": "Enter the price."
+  }
+}

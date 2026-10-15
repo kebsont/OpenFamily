@@ -78,7 +78,8 @@
     "deleteConfirm": "删除这笔购物（{{store}}，{{amount}}）？它也会从预算中移除。",
     "kwh": "{{kwh}} 千瓦时",
     "lines_other": "{{count}} 件商品",
-    "by": "由 {{name}} 添加"
+    "by": "由 {{name}} 添加",
+    "credit": "赊账"
   },
   "analysis": {
     "empty": "暂无可对比的数据：有了第一笔购物后就会显示。",

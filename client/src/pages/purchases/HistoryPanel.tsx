@@ -86,7 +86,8 @@ export const HistoryPanel: React.FC<{
     const subtitle = (p: Purchase) => {
         if (p.kind === 'electricity') return p.kwh !== null ? t('history.kwh', { kwh: p.kwh }) : t('kinds.electricity');
         if (p.kind === 'receipt') return t('history.lines', { count: p.item_count ?? 0 });
-        return p.note || t('kinds.quick');
+        const what = p.note || t('kinds.quick');
+        return p.paid === false ? `${what} · ${t('history.credit')}` : what;
     };
 
     return (

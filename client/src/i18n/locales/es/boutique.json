@@ -1,0 +1,44 @@
+{
+  "tabs": {
+    "month": "Compra del mes",
+    "boutique": "Tienda de la esquina"
+  },
+  "owed": {
+    "title": "Por pagar en la tienda",
+    "detail_one": "{{count}} compra a crédito, desde {{since}}",
+    "detail_other": "{{count}} compras a crédito, desde {{since}}",
+    "settle": "Está pagado",
+    "confirm": "¿Está todo pagado en la tienda?",
+    "yes": "Sí, todo pagado",
+    "no": "No"
+  },
+  "settled": "Pagado: {{amount}}.",
+  "fields": {
+    "what": "¿Qué?",
+    "whatPlaceholder": "Pan, pimienta, carbón, aguja…",
+    "price": "Precio",
+    "date": "Día",
+    "payment": "Pago",
+    "paid": "Pagado",
+    "credit": "A crédito",
+    "boughtBy": "Comprado por",
+    "me": "Yo",
+    "maid": "La empleada"
+  },
+  "me": "Yo",
+  "add": "Añadir",
+  "added": "Añadido: {{what}}",
+  "monthTotal": "Tienda este mes:",
+  "empty": "Nada de la tienda este mes.",
+  "paid": "Pagado",
+  "credit": "A crédito",
+  "markPaid": "{{what}}: marcar como pagado",
+  "markCredit": "{{what}}: volver a crédito",
+  "remove": "Eliminar {{what}}",
+  "deleteConfirm": "¿Eliminar «{{what}}» ({{amount}})?",
+  "errors": {
+    "load": "No se ha podido cargar la tienda.",
+    "save": "No se ha guardado. Comprueba la conexión.",
+    "price": "Indica el precio."
+  }
+}

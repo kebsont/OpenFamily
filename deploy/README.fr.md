@@ -99,7 +99,7 @@ Le menu **Achats** (☰, ou le bouton rond **+** → **Scanner un ticket** / **R
 
 - **Scanner un ticket** : photo du ticket de caisse (2 ou 3 photos s'il est long). Chaque ligne est lue, rangée par rayon et ajoutée au budget. On relit avant d'enregistrer : un bandeau signale si la somme des lignes ne tombe pas sur le total.
 - **Recharge Woyofal** : montant et kWh reçus (indiqués sur le reçu ou le SMS). L'appli calcule le prix du kWh et le total du mois.
-- **Petite dépense** : boutique du coin, marché, quincaillerie… avec ce qui a été acheté.
+- **Petite dépense** : marché, quincaillerie… avec ce qui a été acheté. Pour la boutique du coin, il y a plus simple : l'onglet **Boutique** (section 8).
 
 L'onglet **Analyse** compare le mois choisi au mois précédent : par magasin, par rayon, produits les plus achetés (avec l'évolution des prix), électricité, et les achats répétés à la boutique. Le bouton **À la liste** ajoute ces derniers à la liste de courses, pour les prendre en gros à Auchan le mois suivant.
 
@@ -132,6 +132,19 @@ En début de mois, un bouton ajoute d'un coup les **produits habituels** : ceux 
 Ce que les recettes ou les menus ajoutent à la liste de courses apparaît sous **Aussi à acheter**. La liste détaillée d'origine (rayons, prix, modèles) reste accessible en bas de la page.
 
 Quand des tickets sont scannés, l'IA reprend les noms des listes (« Huile », « Omo »…) : les achats et les listes se comparent directement.
+
+## 8. La boutique du coin
+
+Les petits achats de tous les jours (pain, poivre, chips, aiguille, charbon…) ont leur propre carnet : onglet **Boutique**, à côté de **Courses du mois** sur la même page, ou bouton rond **+** → **Achat boutique**.
+
+- **Quoi ?** et **Prix**, puis **Ajouter**. Les produits pris souvent sont proposés avec leur dernier prix : un appui remplit les deux champs.
+- **Payé** ou **À crédit** : ce qui est pris à crédit s'additionne dans l'encadré **À payer à la boutique**. Le jour où le boutiquier est payé, **C'est réglé** passe tout en payé d'un coup. Un appui sur l'étiquette **Payé / À crédit** d'une ligne la change seule.
+- **Moi** ou **La bonne** : qui a fait l'achat. Ces deux choix et le mode de paiement restent mémorisés sur le téléphone.
+- **Jour** : pour noter après coup un achat de la veille.
+
+Chaque achat est aussi une dépense du budget (catégorie Alimentation, Maison, Enfants ou Santé selon le produit), y compris ceux pris à crédit : le budget suit ce qui est consommé, l'encadré suit ce qui reste dû.
+
+La différence avec les courses du mois : la liste du mois prépare les grosses courses (Auchan, marché) et se coche au magasin ; le carnet de la boutique enregistre après coup des petites sommes, presque chaque jour. Dans **Achats → Analyse**, ces achats forment la ligne **Petits achats**, et ce qui est pris plusieurs fois dans le mois (sauf le pain et les produits frais) est proposé pour la liste du mois suivant, pour l'acheter en gros.
 
 ## Au quotidien
 
@@ -183,6 +196,7 @@ sudo ./deploy/compose.sh start server
 | Le foyer d'une session est relu en base à chaque requête | Avant, un membre retiré d'une famille gardait l'accès à ses données jusqu'à 7 jours, le temps que sa session expire. |
 | Synchro en temps réel pour les membres | Avant, seul le propriétaire voyait les changements des autres sans recharger la page. |
 | Courses du mois | Une liste par mois écrite comme une note, cochée au magasin, avec l'historique des mois précédents et les produits habituels en un appui. |
+| Carnet de la boutique | Les petits achats du quotidien, payés ou à crédit, avec ce qui reste dû à la boutique et qui a fait l'achat. |
 | Bandeau d'installation sur iPhone, nom de l'appli au choix | Sur iPhone, l'appli doit être ajoutée à l'écran d'accueil pour s'ouvrir en plein écran et recevoir les notifications. |
 | Menu « Achats » | Tickets de caisse lus par l'IA, recharges Woyofal, petites dépenses, et comparaison d'un mois à l'autre. Tout s'ajoute aussi au budget. |
 | Franc CFA dans les devises | — |

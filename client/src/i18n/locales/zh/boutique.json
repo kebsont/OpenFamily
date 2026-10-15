@@ -1,0 +1,43 @@
+{
+  "tabs": {
+    "month": "本月采购",
+    "boutique": "街角小店"
+  },
+  "owed": {
+    "title": "欠小店的钱",
+    "detail_other": "{{count}} 笔赊账，自 {{since}} 起",
+    "settle": "已结清",
+    "confirm": "小店的账都付清了吗？",
+    "yes": "是，全部付清",
+    "no": "否"
+  },
+  "settled": "已结清：{{amount}}。",
+  "fields": {
+    "what": "买了什么？",
+    "whatPlaceholder": "面包、胡椒、木炭、针…",
+    "price": "价格",
+    "date": "日期",
+    "payment": "付款",
+    "paid": "已付",
+    "credit": "赊账",
+    "boughtBy": "购买人",
+    "me": "我",
+    "maid": "保姆"
+  },
+  "me": "我",
+  "add": "添加",
+  "added": "已添加：{{what}}",
+  "monthTotal": "本月小店：",
+  "empty": "本月没有在小店买东西。",
+  "paid": "已付",
+  "credit": "赊账",
+  "markPaid": "{{what}}：标为已付",
+  "markCredit": "{{what}}：改回赊账",
+  "remove": "删除{{what}}",
+  "deleteConfirm": "删除“{{what}}”（{{amount}}）？",
+  "errors": {
+    "load": "无法加载小店。",
+    "save": "未保存，请检查网络。",
+    "price": "请填写价格。"
+  }
+}

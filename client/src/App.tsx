@@ -21,6 +21,7 @@ import MealPlanning from './pages/MealPlanning';
 import Budget from './pages/Budget';
 import Purchases from './pages/Purchases';
 import MonthlyList from './pages/MonthlyList';
+import Boutique from './pages/Boutique';
 import Family from './pages/Family';
 import Settings from './pages/Settings';
 import Join from './pages/Join';
@@ -77,6 +78,7 @@ function App() {
                     the detailed list (aisles, prices, templates) stays one tap away. */}
                 <Route path="/shopping" element={<MonthlyList />} />
                 <Route path="/shopping/all" element={<ShoppingList />} />
+                <Route path="/shopping/boutique" element={<Boutique />} />
                 <Route path="/tasks" element={<Tasks />} />
                 <Route path="/posts" element={<Posts />} />
                 <Route path="/rewards" element={moduleRoute('rewards', <Rewards />)} />

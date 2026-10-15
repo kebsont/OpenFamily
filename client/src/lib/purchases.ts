@@ -24,6 +24,9 @@ export interface Purchase {
     category: string;
     note: string | null;
     budget_entry_id: string | null;
+    /** Corner shop: bought on credit until paid. */
+    paid?: boolean;
+    bought_by?: string | null;
     item_count?: number;
     created_by_name?: string | null;
     items?: PurchaseItem[];

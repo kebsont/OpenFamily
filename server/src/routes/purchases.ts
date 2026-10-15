@@ -21,7 +21,7 @@ import { broadcast } from '../lib/broadcaster';
 import { getFamilyCategories } from './categories';
 import { aiComplete } from '../services/ai';
 import { handleAiError, requireConfiguredAi } from './ai';
-import { MARKET_CATEGORY, productKey } from '../lib/products';
+import { guessAisle, MARKET_CATEGORY, productKey } from '../lib/products';
 
 const router = Router();
 router.use(authMiddleware);
@@ -199,7 +199,8 @@ const insertItems = async (client: PoolClient, purchaseId: string, items: CleanI
 };
 
 const PURCHASE_COLUMNS = `p.id, p.kind, p.store, to_char(p.purchased_on, 'YYYY-MM-DD') AS purchased_on,
-    p.total::float8 AS total, p.kwh::float8 AS kwh, p.category, p.note, p.budget_entry_id, p.created_at`;
+    p.total::float8 AS total, p.kwh::float8 AS kwh, p.category, p.note, p.budget_entry_id, p.created_at,
+    p.paid, to_char(p.paid_on, 'YYYY-MM-DD') AS paid_on, p.bought_by`;
 
 const loadPurchase = async (ownerId: string, id: string) => {
     const result = await query(
@@ -408,6 +409,147 @@ router.get('/combined', async (req: AuthRequest, res) => {
     }
 });
 
+// ─── Corner shop ("Boutique") ───────────────────────────────────────────────
+//
+// The small things bought almost every day at the corner shop (bread,
+// pepper, charcoal…), by the lady of the house or the maid, often on credit
+// and paid later. They are quick purchases at the store "Boutique", with who
+// bought them and whether they are paid yet.
+
+const BOUTIQUE = 'Boutique';
+const isBoutique = `p.kind = 'quick' AND LOWER(p.store) = 'boutique'`;
+
+/** Budget category of a corner-shop product: food unless it obviously is not. */
+const boutiqueCategory = (what: string, budget: string[]): string => {
+    const has = (c: string) => budget.find((b) => b.toLowerCase() === c.toLowerCase());
+    const aisle = guessAisle(productKey(what), ['Alimentation', 'Menage', 'Bebe', 'Sante']);
+    const wanted = aisle === 'Menage' ? has('Maison') : aisle === 'Bebe' ? has('Enfants') : aisle === 'Sante' ? has('Santé') : undefined;
+    return wanted ?? has('Alimentation') ?? budget.find((b) => b === 'Autre') ?? budget[0] ?? 'Autre';
+};
+
+// GET /boutique?month=YYYY-MM — the month's corner-shop purchases, what is
+// still owed (all months), and what is bought most (for one-tap entry).
+router.get('/boutique', async (req: AuthRequest, res) => {
+    try {
+        const month = typeof req.query.month === 'string' && MONTH_PATTERN.test(req.query.month) ? req.query.month : null;
+        if (!month) return res.status(400).json({ success: false, error: 'invalid_month' });
+        const { start, next } = monthBounds(month);
+        const [items, unpaid, recent] = await Promise.all([
+            query(
+                `SELECT p.id, p.note AS what, p.total::float8 AS total, to_char(p.purchased_on, 'YYYY-MM-DD') AS purchased_on,
+                        p.paid, to_char(p.paid_on, 'YYYY-MM-DD') AS paid_on, p.bought_by
+                 FROM purchases p
+                 WHERE p.user_id = $1 AND ${isBoutique} AND p.purchased_on >= $2 AND p.purchased_on < $3
+                 ORDER BY p.purchased_on DESC, p.created_at DESC`,
+                [req.userId, start, next]
+            ),
+            query(
+                `SELECT COALESCE(SUM(p.total), 0)::float8 AS total, COUNT(*)::int AS count,
+                        to_char(MIN(p.purchased_on), 'YYYY-MM-DD') AS since
+                 FROM purchases p WHERE p.user_id = $1 AND ${isBoutique} AND NOT p.paid`,
+                [req.userId]
+            ),
+            query(
+                `SELECT p.note AS what, p.total::float8 AS total
+                 FROM purchases p
+                 WHERE p.user_id = $1 AND ${isBoutique} AND p.note IS NOT NULL
+                   AND p.purchased_on >= CURRENT_DATE - 60
+                 ORDER BY p.purchased_on DESC, p.created_at DESC LIMIT 500`,
+                [req.userId]
+            ),
+        ]);
+
+        // Most bought first, each with its last name and price.
+        const frequent = new Map<string, { what: string; price: number; count: number }>();
+        for (const row of recent.rows as Array<{ what: string; total: number }>) {
+            const key = productKey(row.what);
+            if (!key) continue;
+            const entry = frequent.get(key);
+            if (entry) entry.count += 1;
+            else frequent.set(key, { what: row.what, price: row.total, count: 1 });
+        }
+
+        const list = items.rows as Array<{ total: number }>;
+        return res.json({
+            success: true,
+            data: {
+                month,
+                items: items.rows,
+                month_total: round2(list.reduce((sum, i) => sum + i.total, 0)),
+                unpaid: unpaid.rows[0],
+                frequent: [...frequent.values()].sort((a, b) => b.count - a.count).slice(0, 8),
+            },
+        });
+    } catch (error) {
+        console.error('Boutique list error:', error);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// POST /boutique { what, total, paid?, bought_by?, purchased_on? }
+router.post('/boutique', requireParent, async (req: AuthRequest, res) => {
+    try {
+        const what = text(req.body?.what, 120);
+        if (!what) return res.status(400).json({ success: false, error: 'missing_what' });
+        const categories = await getFamilyCategories(req.userId!);
+        const p = await readPurchase(req.userId!, {
+            kind: 'quick',
+            store: BOUTIQUE,
+            purchased_on: req.body?.purchased_on,
+            total: req.body?.total,
+            category: boutiqueCategory(what, categories.budget),
+            note: what,
+        });
+        if ('error' in p) return res.status(400).json({ success: false, error: p.error });
+        const id = await createPurchase(req.userId!, req.actualUserId!, p, {
+            paid: req.body?.paid !== false,
+            boughtBy: text(req.body?.bought_by, 40) || null,
+        });
+        broadcast(req.userId!, { type: 'update', entity: 'budget', action: 'created' });
+        return res.json({ success: true, data: await loadPurchase(req.userId!, id) });
+    } catch (error) {
+        console.error('Boutique add error:', error);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// POST /boutique/settle — the corner-shop tab is paid: everything owed is.
+router.post('/boutique/settle', requireParent, async (req: AuthRequest, res) => {
+    try {
+        const result = await query(
+            `UPDATE purchases p SET paid = true, paid_on = CURRENT_DATE, updated_at = now()
+             WHERE p.user_id = $1 AND ${isBoutique} AND NOT p.paid
+             RETURNING p.total::float8 AS total`,
+            [req.userId]
+        );
+        const rows = result.rows as Array<{ total: number }>;
+        broadcast(req.userId!, { type: 'update', entity: 'budget', action: 'updated' });
+        return res.json({ success: true, data: { count: rows.length, total: round2(rows.reduce((s, r) => s + r.total, 0)) } });
+    } catch (error) {
+        console.error('Boutique settle error:', error);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
+// PUT /:id/paid { paid } — one purchase paid, or back on credit.
+router.put('/:id/paid', requireParent, async (req: AuthRequest, res) => {
+    if (!UUID_PATTERN.test(req.params.id)) return res.status(404).json({ success: false, error: 'not_found' });
+    try {
+        const paid = req.body?.paid === true;
+        const result = await query(
+            `UPDATE purchases SET paid = $1, paid_on = CASE WHEN $1 THEN CURRENT_DATE ELSE NULL END, updated_at = now()
+             WHERE id = $2 AND user_id = $3 RETURNING id`,
+            [paid, req.params.id, req.userId]
+        );
+        if (result.rows.length === 0) return res.status(404).json({ success: false, error: 'not_found' });
+        broadcast(req.userId!, { type: 'update', entity: 'budget', action: 'updated' });
+        return res.json({ success: true, data: await loadPurchase(req.userId!, req.params.id) });
+    } catch (error) {
+        console.error('Purchase paid error:', error);
+        return res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+});
+
 // GET /:id — one purchase with its lines.
 router.get('/:id', async (req: AuthRequest, res) => {
     if (!UUID_PATTERN.test(req.params.id)) return res.status(404).json({ success: false, error: 'not_found' });
@@ -421,36 +563,49 @@ router.get('/:id', async (req: AuthRequest, res) => {
     }
 });
 
+/**
+ * Saves a purchase and its budget entry in one transaction; returns its id.
+ * `credit` is for the corner shop: bought now, paid later, by whom.
+ */
+const createPurchase = async (
+    ownerId: string,
+    actualUserId: string,
+    p: CleanPurchase,
+    credit: { paid: boolean; boughtBy: string | null } = { paid: true, boughtBy: null }
+): Promise<string> => {
+    const client = await getClient();
+    try {
+        await client.query('BEGIN');
+        const entry = await client.query(
+            `INSERT INTO budget_entries (user_id, category, amount, description, date, is_expense)
+             VALUES ($1, $2, $3, $4, $5, true) RETURNING id`,
+            [ownerId, p.category, p.total, budgetDescription(p.kind, p.store, p.note, p.kwh), p.purchased_on]
+        );
+        const created = await client.query(
+            `INSERT INTO purchases (user_id, kind, store, purchased_on, total, kwh, category, note, budget_entry_id, created_by,
+                                    paid, paid_on, bought_by)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, CASE WHEN $11 THEN $4::date ELSE NULL END, $12) RETURNING id`,
+            [ownerId, p.kind, p.store, p.purchased_on, p.total, p.kwh, p.category, p.note, entry.rows[0].id, actualUserId,
+                credit.paid, credit.boughtBy]
+        );
+        const id = created.rows[0].id as string;
+        await insertItems(client, id, p.items);
+        await client.query('COMMIT');
+        return id;
+    } catch (error) {
+        await client.query('ROLLBACK').catch(() => {});
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+
 // POST / — save a purchase (and its budget entry) in one transaction.
 router.post('/', requireParent, async (req: AuthRequest, res) => {
     try {
         const p = await readPurchase(req.userId!, req.body);
         if ('error' in p) return res.status(400).json({ success: false, error: p.error });
-
-        const client = await getClient();
-        let id = '';
-        try {
-            await client.query('BEGIN');
-            const entry = await client.query(
-                `INSERT INTO budget_entries (user_id, category, amount, description, date, is_expense)
-                 VALUES ($1, $2, $3, $4, $5, true) RETURNING id`,
-                [req.userId, p.category, p.total, budgetDescription(p.kind, p.store, p.note, p.kwh), p.purchased_on]
-            );
-            const created = await client.query(
-                `INSERT INTO purchases (user_id, kind, store, purchased_on, total, kwh, category, note, budget_entry_id, created_by)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
-                [req.userId, p.kind, p.store, p.purchased_on, p.total, p.kwh, p.category, p.note, entry.rows[0].id, req.actualUserId]
-            );
-            id = created.rows[0].id;
-            await insertItems(client, id, p.items);
-            await client.query('COMMIT');
-        } catch (error) {
-            await client.query('ROLLBACK').catch(() => {});
-            throw error;
-        } finally {
-            client.release();
-        }
-
+        const id = await createPurchase(req.userId!, req.actualUserId!, p);
         broadcast(req.userId!, { type: 'update', entity: 'budget', action: 'created' });
         return res.json({ success: true, data: await loadPurchase(req.userId!, id) });
     } catch (error) {

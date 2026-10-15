@@ -27,6 +27,7 @@ import {
     Receipt,
     Camera,
     Zap,
+    Store,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/Button';
@@ -72,6 +73,7 @@ const mobileTabs: { labelKey: string; href: string; icon: typeof Home; module?: 
 const quickActions: { labelKey: string; href: string; icon: typeof Home; module?: string }[] = [
     { labelKey: 'quickActions.scanReceipt', href: '/purchases?add=scan', icon: Camera },
     { labelKey: 'quickActions.addElectricity', href: '/purchases?add=electricity', icon: Zap },
+    { labelKey: 'quickActions.boutique', href: '/shopping/boutique', icon: Store },
     { labelKey: 'quickActions.addShopping', href: '/shopping', icon: ShoppingCart },
     { labelKey: 'quickActions.addTask', href: '/tasks', icon: CheckSquare },
     { labelKey: 'quickActions.addPost', href: '/posts', icon: MessageSquare },

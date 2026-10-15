@@ -1,0 +1,44 @@
+{
+  "tabs": {
+    "month": "Courses du mois",
+    "boutique": "Boutique"
+  },
+  "owed": {
+    "title": "À payer à la boutique",
+    "detail_one": "{{count}} achat à crédit, depuis {{since}}",
+    "detail_other": "{{count}} achats à crédit, depuis {{since}}",
+    "settle": "C'est réglé",
+    "confirm": "Tout est payé à la boutique ?",
+    "yes": "Oui, tout est payé",
+    "no": "Non"
+  },
+  "settled": "Réglé : {{amount}}.",
+  "fields": {
+    "what": "Quoi ?",
+    "whatPlaceholder": "Pain, poivre, charbon, aiguille…",
+    "price": "Prix (F CFA)",
+    "date": "Jour",
+    "payment": "Paiement",
+    "paid": "Payé",
+    "credit": "À crédit",
+    "boughtBy": "Acheté par",
+    "me": "Moi",
+    "maid": "La bonne"
+  },
+  "me": "Moi",
+  "add": "Ajouter",
+  "added": "Ajouté : {{what}}",
+  "monthTotal": "Boutique ce mois-ci :",
+  "empty": "Rien de pris à la boutique ce mois-ci.",
+  "paid": "Payé",
+  "credit": "À crédit",
+  "markPaid": "{{what}} : marquer payé",
+  "markCredit": "{{what}} : remettre à crédit",
+  "remove": "Supprimer {{what}}",
+  "deleteConfirm": "Supprimer « {{what}} » ({{amount}}) ?",
+  "errors": {
+    "load": "Impossible de charger la boutique.",
+    "save": "Ce n'est pas enregistré. Vérifiez la connexion.",
+    "price": "Indiquez le prix."
+  }
+}

@@ -129,4 +129,16 @@ export const foyersMigrations: readonly Migration[] = [
              WHERE o.id = m.id`,
         ],
     },
+    {
+        // Corner-shop purchases are often on credit, paid later, and bought by
+        // the lady of the house or the maid.
+        id: 'foyers/0007-purchase-credit',
+        statements: [
+            'ALTER TABLE purchases ADD COLUMN paid BOOLEAN NOT NULL DEFAULT true',
+            'ALTER TABLE purchases ADD COLUMN paid_on DATE',
+            'ALTER TABLE purchases ADD COLUMN bought_by VARCHAR(40)',
+            'UPDATE purchases SET paid_on = purchased_on',
+            `CREATE INDEX idx_purchases_unpaid ON purchases(user_id) WHERE NOT paid`,
+        ],
+    },
 ];

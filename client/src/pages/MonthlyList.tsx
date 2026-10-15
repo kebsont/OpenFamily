@@ -23,6 +23,7 @@ import { shiftMonth, thisMonth } from '../lib/purchases';
 import { cn } from '../lib/utils';
 import { intlLocale } from '../i18n/format';
 import { MonthPicker, monthLabel } from './purchases/ui';
+import { ShoppingTabs } from './ShoppingTabs';
 
 /** A line of the general shopping list (recipes, menus…), shown under the note. */
 interface GeneralItem {
@@ -273,12 +274,10 @@ const MonthlyList: React.FC = () => {
 
     return (
         <div className="mx-auto max-w-2xl space-y-4">
-            <div className="flex items-baseline justify-between gap-3">
-                <h2 className="text-title font-bold text-foreground">{t('title')}</h2>
-                {items.length > 0 && <span className="text-caption text-muted-foreground">{t('progress', { done, total: items.length })}</span>}
-            </div>
+            <ShoppingTabs active="month" />
 
             <MonthPicker month={month} onChange={setMonth} max={shiftMonth(current, 1)} />
+            {items.length > 0 && <p className="-mt-2 text-right text-caption text-muted-foreground">{t('progress', { done, total: items.length })}</p>}
 
             {error && (
                 <p className="flex items-center gap-1 text-caption text-destructive" role="alert">

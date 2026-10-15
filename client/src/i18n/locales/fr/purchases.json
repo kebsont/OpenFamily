@@ -80,7 +80,8 @@
     "kwh": "{{kwh}} kWh",
     "lines_one": "{{count}} article",
     "lines_other": "{{count}} articles",
-    "by": "saisi par {{name}}"
+    "by": "saisi par {{name}}",
+    "credit": "à crédit"
   },
   "analysis": {
     "empty": "Rien à comparer pour l'instant : les chiffres apparaîtront avec les premiers achats.",

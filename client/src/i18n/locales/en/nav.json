@@ -34,7 +34,8 @@
     "addMember": "Add a member",
     "addPost": "New post",
     "scanReceipt": "Scan a receipt",
-    "addElectricity": "Electricity top-up"
+    "addElectricity": "Electricity top-up",
+    "boutique": "Corner-shop purchase"
   },
   "user": {
     "profile": "Profile",

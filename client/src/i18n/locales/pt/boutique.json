@@ -1,0 +1,44 @@
+{
+  "tabs": {
+    "month": "Compras do mês",
+    "boutique": "Loja da esquina"
+  },
+  "owed": {
+    "title": "A pagar na loja",
+    "detail_one": "{{count}} compra a crédito, desde {{since}}",
+    "detail_other": "{{count}} compras a crédito, desde {{since}}",
+    "settle": "Está pago",
+    "confirm": "Está tudo pago na loja?",
+    "yes": "Sim, tudo pago",
+    "no": "Não"
+  },
+  "settled": "Pago: {{amount}}.",
+  "fields": {
+    "what": "O quê?",
+    "whatPlaceholder": "Pão, pimenta, carvão, agulha…",
+    "price": "Preço",
+    "date": "Dia",
+    "payment": "Pagamento",
+    "paid": "Pago",
+    "credit": "A crédito",
+    "boughtBy": "Comprado por",
+    "me": "Eu",
+    "maid": "A empregada"
+  },
+  "me": "Eu",
+  "add": "Adicionar",
+  "added": "Adicionado: {{what}}",
+  "monthTotal": "Loja este mês:",
+  "empty": "Nada da loja este mês.",
+  "paid": "Pago",
+  "credit": "A crédito",
+  "markPaid": "{{what}}: marcar como pago",
+  "markCredit": "{{what}}: voltar a crédito",
+  "remove": "Eliminar {{what}}",
+  "deleteConfirm": "Eliminar «{{what}}» ({{amount}})?",
+  "errors": {
+    "load": "Não foi possível carregar a loja.",
+    "save": "Não foi guardado. Verifique a ligação.",
+    "price": "Indique o preço."
+  }
+}
