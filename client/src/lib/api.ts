@@ -68,7 +68,18 @@ class ApiClient {
                 );
             }
 
-            const fallbackMessage = `HTTP ${response.status}`;
+            // A refusal that is not the API's own JSON comes from something in
+            // front of it (proxy, network filter): its page title and server
+            // name, shown with the status, say which.
+            let detail = '';
+            if (!data) {
+                const text = await response.text().catch(() => '');
+                const title = /<title[^>]*>([^<]*)<\/title>/i.exec(text)?.[1] ?? text.replace(/<[^>]+>/g, ' ');
+                detail = [title.replace(/\s+/g, ' ').trim().slice(0, 60), response.headers.get('server') ?? '']
+                    .filter(Boolean)
+                    .join(' · ');
+            }
+            const fallbackMessage = detail ? `HTTP ${response.status} · ${detail}` : `HTTP ${response.status}`;
             throw new Error(data?.error || data?.message || fallbackMessage);
         }
 
