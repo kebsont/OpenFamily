@@ -5,6 +5,9 @@
 /** The name under the home-screen icon, set when the image is built (APP_NAME). */
 export const APP_NAME = (import.meta.env.VITE_APP_NAME ?? '').trim() || 'OpenFamily';
 
+/** The logo, with a version so a redrawn logo is not taken from an old cache. */
+export const LOGO_URL = `${import.meta.env.BASE_URL}OpenFamily.png${import.meta.env.VITE_ICON_VERSION ? `?v=${import.meta.env.VITE_ICON_VERSION}` : ''}`;
+
 export const isIos = (): boolean => {
     if (typeof navigator === 'undefined') return false;
     // iPadOS presents itself as a Mac with a touch screen.

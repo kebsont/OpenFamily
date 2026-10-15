@@ -35,7 +35,7 @@ import { DemoBanner } from '../app/DemoBanner';
 import { MagicInputButton } from '../app/MagicInput';
 import { HouseholdSwitcher } from '../app/HouseholdSwitcher';
 import { IosInstallBanner } from '../app/IosInstallBanner';
-import { APP_NAME } from '../../lib/pwa';
+import { APP_NAME, LOGO_URL } from '../../lib/pwa';
 import { useLinkedAccounts } from '../../hooks/useLinkedAccounts';
 
 interface LayoutProps {
@@ -146,7 +146,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <div className="flex h-full flex-col">
                     <div className="flex h-20 items-center justify-between border-b border-border px-6">
                         <Link to="/" className="flex items-center gap-3" onClick={closeMenus}>
-                            <img src={`${import.meta.env.BASE_URL}OpenFamily.png`} alt={APP_NAME} className="h-9 w-9 object-contain" />
+                            <img src={LOGO_URL} alt={APP_NAME} className="h-9 w-9 object-contain" />
                             <span className="text-lg font-semibold tracking-tight">{APP_NAME}</span>
                         </Link>
                         <button

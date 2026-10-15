@@ -12,6 +12,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { intlLocale, weekStartsOn } from '../i18n/format';
 import { cn } from '../lib/utils';
 import FamilyNotes, { type FamilyNote } from '../components/app/FamilyNotes';
+import { LOGO_URL } from '../lib/pwa';
 
 interface Member { id: string; name: string; color: string }
 interface Appointment { id: string; occurrence_id?: string; title: string; start_time: string; end_time?: string; location?: string; family_members_data?: Member[] }
@@ -409,7 +410,7 @@ const Kiosk: React.FC = () => {
                 )}
 
                 <div className="flex items-center gap-2">
-                    <img src={`${import.meta.env.BASE_URL}OpenFamily.png`} alt="OpenFamily" className="hidden h-10 w-10 object-contain sm:block" />
+                    <img src={LOGO_URL} alt="" className="hidden h-10 w-10 object-contain sm:block" />
                     <button
                         type="button"
                         onClick={() => setSettingsOpen(true)}

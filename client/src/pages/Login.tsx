@@ -8,7 +8,7 @@ import { Input } from '../components/ui/Input';
 import { LanguageSwitcher } from '../components/ui/LanguageSwitcher';
 import { Users, Sun, Moon, ArrowLeft } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { APP_NAME } from '../lib/pwa';
+import { APP_NAME, LOGO_URL } from '../lib/pwa';
 
 
 const Login: React.FC = () => {
@@ -115,7 +115,7 @@ const Login: React.FC = () => {
             <Card className="w-full max-w-md" hover={false}>
                 <CardHeader className="text-center pb-8 pt-8">
                     <div className="mx-auto mb-6">
-                        <img src={`${import.meta.env.BASE_URL}OpenFamily.png`} alt="OpenFamily" className="w-16 h-16 rounded-xl object-contain mx-auto" />
+                        <img src={LOGO_URL} alt={APP_NAME} className="w-16 h-16 rounded-xl object-contain mx-auto" />
                     </div>
                     <CardTitle className="font-serif text-display mb-2">
                         {APP_NAME === 'OpenFamily' ? <>Open<span className="text-primary">Family</span></> : APP_NAME}

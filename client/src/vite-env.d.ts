@@ -7,6 +7,8 @@ interface ImportMetaEnv {
     readonly VITE_REGISTRATION_ENABLED?: string;
     /** Name of the installed app (home screen, title); OpenFamily when empty. */
     readonly VITE_APP_NAME?: string;
+    /** Version of the icons, from their content (vite.config.ts). */
+    readonly VITE_ICON_VERSION?: string;
 }
 
 interface ImportMeta {
