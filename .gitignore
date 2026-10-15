@@ -82,3 +82,6 @@ store/
 
 # Daily database backups made on the server
 backups/
+
+# Python caches (client/scripts/brand-icons.py)
+__pycache__/
