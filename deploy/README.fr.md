@@ -155,6 +155,7 @@ Toutes les commandes se lancent depuis `/opt/openfamily`, avec `sudo`.
 | Voir si tout tourne | `./deploy/compose.sh ps` |
 | Lire les journaux | `./deploy/compose.sh logs -f --tail=100` |
 | Changer le mot de passe d'un compte | `./deploy/reset-password.sh adresse@e-mail` |
+| Voir qui est dans quel foyer, et les derniers repas saisis (quand une saisie « n'apparaît pas ») | `./deploy/foyers.sh` |
 | Mettre à jour | `./deploy/update.sh` |
 
 ### Mot de passe oublié
